@@ -21,8 +21,8 @@ jobs:
     - name: Copy badges
       run: docker cp tests:/app/coveragereport/ .
     - name: Delete container
-      run: docker rm $(docker stop $(tests))
+      run: docker rm $(docker stop tests)
     - uses: mikeal/publish-to-github-action@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         BRANCH_NAME: ${GITHUB_REF##*/}
