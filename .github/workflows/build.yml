@@ -22,7 +22,12 @@ jobs:
       run: docker cp tests:/app/coveragereport/ .
     - name: Delete container
       run: docker rm $(docker stop tests)
-    - uses: mikeal/publish-to-github-action@master
+    - name: Get current branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+    - name: Push badges into the branch
+      uses: mikeal/publish-to-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-        BRANCH_NAME: ${GITHUB_REF##*/}
+        BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
