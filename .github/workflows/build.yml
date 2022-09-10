@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image, run tests
-      run: docker build . --file Dockerfile.ci --no-cache -t fantast03/SpaceBattle
+      run: docker build . --file Dockerfile.ci --no-cache -t fantast03/spacebattle
