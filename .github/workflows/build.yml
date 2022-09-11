@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ "main", "dev" ]
 
+env:
+  TOKEN: ${{ secrets.REPORT_TOKEN }}
+  REPORT_URI: ${{ secrets.REPORT_URI }}
+  ITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+
 jobs:
 
   tests:
@@ -16,18 +22,26 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image, run tests, download report generator
       run: docker build . --file Dockerfile.ci --no-cache -t fantast03/spacebattle
+
     - name: Generate coverage report
       run: docker run --name=tests fantast03/spacebattle
     - name: Copy badges
       run: docker cp tests:/app/coveragereport/ .
     - name: Delete container
       run: docker rm $(docker stop tests)
+
     - name: Get current branch name
       shell: bash
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       id: extract_branch
-    - name: Push badges into the branch
-      uses: mikeal/publish-to-github-action@master
+
+    - name: Send coverage report on dedicated server
+      run: curl -H "Token: ${TOKEN}" -H "Content-Type: text/html" -X POST --data "@./coveragereport/index.html" ${REPORT_URI}/${BRANCH_NAME} && rm index.html && rm index.htm
       env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
+    
+    - name: Edit README.md urls to fresh coverage report url
+      run: sed -i 's#${REPORT_URI}/[a-zA-Z0-9]\+#${REPORT_URI}/${BRANCH_NAME}#g' README.md
+
+    - name: Push badges and updated README.md into the branch
+      uses: mikeal/publish-to-github-action@master

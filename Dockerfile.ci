@@ -13,5 +13,5 @@ WORKDIR /app/
 CMD dotnet /$(whoami)/.nuget/packages/reportgenerator/5.1.10/tools/net6.0/ReportGenerator.dll \
      -reports:$(find . -name "coverage.cobertura.xml") \
      -targetdir:coveragereport \
-     -reporttypes:Badges \
+     "-reporttypes:HtmlInline;Badges" \
      -classfilters:-SpaceBattle.Runtime
