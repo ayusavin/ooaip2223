@@ -9,7 +9,7 @@ on:
 env:
   TOKEN: ${{ secrets.REPORT_TOKEN }}
   REPORT_URI: ${{ secrets.REPORT_URI }}
-  ITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
 
 jobs:
