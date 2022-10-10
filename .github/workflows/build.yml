@@ -45,3 +45,5 @@ jobs:
 
     - name: Push badges and updated README.md into the branch
       uses: mikeal/publish-to-github-action@master
+      env:
+        BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
