@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as build
 LABEL maintainer="Savin Arseniy ayusavin@st.omgtu.ru"
 
-COPY . /app/
+COPY ./src /app/
 WORKDIR /app/
 
 RUN dotnet publish -c Release -r linux-x64 --no-self-contained ./SpaceBattle

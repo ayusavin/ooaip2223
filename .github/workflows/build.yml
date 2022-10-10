@@ -25,7 +25,7 @@ jobs:
 
     - name: Generate coverage report
       run: docker run --name=tests fantast03/spacebattle
-    - name: Copy badges
+    - name: Copy coverage report
       run: docker cp tests:/app/coveragereport/ .
     - name: Delete container
       run: docker rm $(docker stop tests)
@@ -36,7 +36,7 @@ jobs:
       id: extract_branch
 
     - name: Send coverage report on dedicated server
-      run: 'curl -H "Token: ${TOKEN}" -H "Content-Type: text/html" -X POST --data "@./coveragereport/index.html" ${REPORT_URI}/${BRANCH_NAME} && rm ./coveragereport/index.html && rm ./coveragereport/index.htm'
+      run: '.github/send_report.sh'
       env:
         BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
     
