@@ -41,7 +41,7 @@ jobs:
         BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
     
     - name: Edit README.md urls to fresh coverage report url
-      run: sed -i 's#${REPORT_URI}/[a-zA-Z0-9]\+#${REPORT_URI}/${BRANCH_NAME}#g' README.md
+      run: sed -i 's#${REPORT_URI}/[a-zA-Z0-9_-]\+#${REPORT_URI}/${BRANCH_NAME}#g' README.md
 
     - name: Push badges and updated README.md into the branch
       uses: mikeal/publish-to-github-action@master
