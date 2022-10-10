@@ -36,7 +36,7 @@ jobs:
       id: extract_branch
 
     - name: Send coverage report on dedicated server
-      run: '.github/send_report.sh'
+      run: 'chmod +x .github/send_report.sh && .github/send_report.sh'
       env:
         BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
     
