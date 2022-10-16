@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [ "**" ]
 
 env:
   TOKEN: ${{ secrets.REPORT_TOKEN }}
@@ -25,7 +25,7 @@ jobs:
 
     - name: Generate coverage report
       run: docker run --name=tests fantast03/spacebattle
-    - name: Copy badges
+    - name: Copy coverage report
       run: docker cp tests:/app/coveragereport/ .
     - name: Delete container
       run: docker rm $(docker stop tests)
@@ -36,12 +36,16 @@ jobs:
       id: extract_branch
 
     - name: Send coverage report on dedicated server
-      run: 'curl -H "Token: ${TOKEN}" -H "Content-Type: text/html" -X POST --data "@./coveragereport/index.html" ${REPORT_URI}/${BRANCH_NAME} && rm ./coveragereport/index.html && rm ./coveragereport/index.htm'
+      run: '.github/send_report.sh'
       env:
         BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
     
     - name: Edit README.md urls to fresh coverage report url
-      run: sed -i 's#${REPORT_URI}/[a-zA-Z0-9]\+#${REPORT_URI}/${BRANCH_NAME}#g' README.md
+      run: sed -i "s#$REPORT_URI/[a-zA-Z0-9_-]\+#$REPORT_URI/$BRANCH_NAME#g" README.md
+      env:
+        BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
 
     - name: Push badges and updated README.md into the branch
       uses: mikeal/publish-to-github-action@master
+      env:
+        BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
