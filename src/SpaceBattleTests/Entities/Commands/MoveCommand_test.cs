@@ -1,15 +1,52 @@
-namespace SpaceBattleTests.Entities;
+namespace SpaceBattleTests.Entities.Commands;
 using SpaceBattleTests.Attributes;
 
-using SpaceBattle.Entities;
+using SpaceBattle.Entities.Commands;
 using SpaceBattle.Base;
+using SpaceBattle.Collections;
+using SpaceBattle.Base.Collections;
 
 using System;
 
 using Moq;
 
+public class MoveAdditionStrategy : IStrategy
+{
+    public object Run(params object[] argv)
+    {
+        var left = (IList<int>)argv[0];
+        var right = (IList<int>)argv[1];
+
+        if (left is null || right is null) {
+            throw new NullReferenceException();
+        }
+
+        for(int i = 0, Size = left.Count(); i < Size; ++i) {
+            left[i] += right[i];
+        }
+        return left;
+    }
+}
+
+public class InjectContainerStrategy : IStrategy {
+    private readonly Container cont = new Container();
+
+    public object Run(params object[] argv) {
+        return cont;
+    }
+}
+
 public class MoveCommandTests
 {
+    static MoveCommandTests() {
+        IContainer cont;
+        try{
+            ServiceLocator.Register("IoC", new InjectContainerStrategy());
+        } catch(Exception){}
+        cont = ServiceLocator.Locate<IContainer>("IoC");
+        cont.Resolve<int>("IoC.Register", "Math.IList.Int32.Addition", typeof(MoveAdditionStrategy));
+    }
+
     [Theory(Timeout = 1000)]
     [InlineData(0, 0, 0, 0)]
     [InlineData(0, 0, 1, 2)]
@@ -68,23 +105,6 @@ public class MoveCommandTests
         Assert.Equal(Expected, Mock.Object.Position);
     }
 
-    [Fact]
-    public void ZeroSizeVectorsTest()
-    {
-        // Prepare
-        var Mock = new Mock<IMovable>();
-        Mock.SetupProperty(mov => mov.Position, new int[] { });
-        Mock.SetupGet(mov => mov.MoveSpeed).Returns(new int[] { });
-
-        var Mover = new MoveCommand(Mock.Object);
-
-        // Action
-        Mover.Run();
-
-        // Assertation
-        Assert.Equal(new int[] { }, Mock.Object.Position);
-    }
-
     [Fact(Timeout = 1000)]
     public void NullPositionMoveTest()
     {
@@ -96,7 +116,7 @@ public class MoveCommandTests
         var Mover = new MoveCommand(Mock.Object);
 
         // Assertation
-        Assert.Throws<Exception>(() => Mover.Run());
+        Assert.Throws<NullReferenceException>(() => Mover.Run());
     }
     [Fact(Timeout = 1000)]
     public void NullMoveSpeedTest()
@@ -109,7 +129,7 @@ public class MoveCommandTests
         var Mover = new MoveCommand(Mock.Object);
 
         // Assertation
-        Assert.Throws<Exception>(() => Mover.Run());
+        Assert.Throws<NullReferenceException>(() => Mover.Run());
     }
 
     [Fact(Timeout = 1000)]
@@ -123,63 +143,6 @@ public class MoveCommandTests
         var Mover = new MoveCommand(Mock.Object);
 
         // Assertation
-        Assert.Throws<Exception>(() => Mover.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void MoveSpeedSizeMoreThenPositionSizeTest()
-    {
-        // Prepare
-        var Mock = new Mock<IMovable>();
-        Mock.SetupProperty(mov => mov.Position, new int[] { 1, 2, 3 });
-        Mock.SetupGet(mov => mov.MoveSpeed).Returns(new int[] { 1, 2 });
-
-        var Mover = new MoveCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<Exception>(() => Mover.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void PositionSizeMoreThenMoveSpeedSizeTest()
-    {
-        // Prepare
-        var Mock = new Mock<IMovable>();
-        Mock.SetupProperty(mov => mov.Position, new int[] { 1, 2 });
-        Mock.SetupGet(mov => mov.MoveSpeed).Returns(new int[] { 1, 2, 3 });
-
-        var Mover = new MoveCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<Exception>(() => Mover.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void PositionSizeIsZeroTest()
-    {
-        // Prepare
-        var Mock = new Mock<IMovable>();
-        Mock.SetupProperty(mov => mov.Position, new int[] { });
-        Mock.SetupGet(mov => mov.MoveSpeed).Returns(new int[] { 1, 2, 3 });
-
-        var Mover = new MoveCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<Exception>(() => Mover.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void MoveSpeedSizeIsZeroTest()
-    {
-        // Prepare
-        var Mock = new Mock<IMovable>();
-        Mock.SetupProperty(mov => mov.Position, new int[] { 1, 2 });
-        Mock.SetupGet(mov => mov.MoveSpeed).Returns(new int[] { });
-
-        var Mover = new MoveCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<Exception>(() => Mover.Run());
+        Assert.Throws<NullReferenceException>(() => Mover.Run());
     }
 }
-

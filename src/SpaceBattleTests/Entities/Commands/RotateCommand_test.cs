@@ -1,8 +1,10 @@
 namespace SpaceBattleTests.Entities;
 using SpaceBattleTests.Attributes;
 
-using SpaceBattle.Entities;
+using SpaceBattle.Entities.Commands;
+using SpaceBattle.Collections;
 using SpaceBattle.Base;
+using SpaceBattle.Base.Collections;
 
 using System;
 
@@ -56,8 +58,42 @@ class TestAngle : IAngle
 }
 
 
+class AngleVectorAdditionStrategy : IStrategy {
+    public object Run(params object[] argv) {
+        var left = (IList<IAngle>)argv[0];
+        var right = (IList<IAngle>)argv[1];
+
+        if (left is null || right is null) {
+            throw new NullReferenceException();
+        }
+
+        for(int i = 0, Size = left.Count; i < Size; i++) {
+            left[i] = left[i].Add(right[i]);
+        }
+
+        return left;
+    }
+}
+
+public class InjectContainerStrategy : IStrategy {
+    private readonly Container cont = new Container();
+
+    public object Run(params object[] argv) {
+        return cont;
+    }
+}
 
 public class RotateCommandTests {
+
+    static RotateCommandTests() {
+        IContainer cont;
+        try{
+            ServiceLocator.Register("IoC", new InjectContainerStrategy());
+        } 
+        catch(Exception){}
+        cont = ServiceLocator.Locate<IContainer>("IoC");
+        cont.Resolve<int>("IoC.Register", "Math.IList.IAngle.Addition", typeof(AngleVectorAdditionStrategy));
+    }
 
     [Fact(Timeout=100)]
     public void RealAngleTest (){
@@ -214,67 +250,5 @@ public class RotateCommandTests {
 
         // Assertation
         Assert.Throws<NullReferenceException>(() => Rotater.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void RotateSpeedSizeMoreThenRotationSizeTest()
-    {
-        // Prepare
-        var Mock = new Mock<IRotatable>();
-        Mock.SetupProperty(Rot => Rot.Rotation, new TestAngle[]{
-            new TestAngle(1, 2),
-            new TestAngle(3, 4)
-        });
-        Mock.SetupGet(Rot => Rot.RotationSpeed).Returns(new TestAngle[] { new TestAngle(5, 6) });
-
-        var Rotater = new RotateCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<ArgumentOutOfRangeException>(() => Rotater.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void RotationSizeMoreThenRotateSpeedSizeTest()
-    {
-        // Prepare
-        var Mock = new Mock<IRotatable>();
-        Mock.SetupProperty(Rot => Rot.Rotation, new TestAngle[] { new TestAngle(5, 6) });
-        Mock.SetupGet(Rot => Rot.RotationSpeed).Returns(new TestAngle[]{
-            new TestAngle(1, 2),
-            new TestAngle(3, 4)
-        });
-
-        var Rotater = new RotateCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<ArgumentOutOfRangeException>(() => Rotater.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void RotationSizeIsZeroTest()
-    {
-        // Prepare
-        var Mock = new Mock<IRotatable>();
-        Mock.SetupProperty(Rot => Rot.Rotation, new TestAngle[] { });
-        Mock.SetupGet(Rot => Rot.RotationSpeed).Returns(new TestAngle[] { new TestAngle(1, 2) });
-
-        var Rotater = new RotateCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<ArgumentOutOfRangeException>(() => Rotater.Run());
-    }
-
-    [Fact(Timeout = 1000)]
-    public void RotationSpeedSizeIsZeroTest()
-    {
-        // Prepare
-        var Mock = new Mock<IRotatable>();
-        Mock.SetupProperty(Rot => Rot.Rotation, new TestAngle[] { new TestAngle(1, 2) });
-        Mock.SetupGet(Rot => Rot.RotationSpeed).Returns(new TestAngle[] {});
-
-        var Rotater = new RotateCommand(Mock.Object);
-
-        // Assertation
-        Assert.Throws<ArgumentOutOfRangeException>(() => Rotater.Run());
     }
 }

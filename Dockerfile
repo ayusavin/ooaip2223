@@ -1,15 +1,19 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as build
-LABEL maintainer="Savin Arseniy ayusavin@st.omgtu.ru"
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as dev
+
+FROM dev as tests
 
 COPY ./src /app/
+
+# Run tests and generate tests report
+WORKDIR /app/SpaceBattleTests/
+RUN dotnet test --collect:"XPlat Code Coverage" .
+# Install reportgenerator
+RUN dotnet add package ReportGenerator --version 5.1.10
+
+# Create Report
 WORKDIR /app/
-
-RUN dotnet publish -c Release -r linux-x64 --no-self-contained ./SpaceBattle
-
-FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
-
-WORKDIR /app/
-
-COPY --from=build /app/SpaceBattle/bin/Release/net6.0/linux-x64/ .
-
-ENTRYPOINT "./space-battle"
+CMD dotnet /$(whoami)/.nuget/packages/reportgenerator/5.1.10/tools/net6.0/ReportGenerator.dll \
+     -reports:$(find . -name "coverage.cobertura.xml") \
+     -targetdir:coveragereport \
+     "-reporttypes:HtmlInline;Badges" \
+     "-assemblyfilters:+space-battle"
