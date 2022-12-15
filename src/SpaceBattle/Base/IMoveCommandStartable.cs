@@ -1,7 +1,8 @@
 namespace SpaceBattle.Base;
 using SpaceBattle.Base.Collections;
 
-public interface IMoveCommandStartable {
+public interface IMoveCommandStartable
+{
     IUObject UObject { get; }
 
     IList<int> Velocity { get; }

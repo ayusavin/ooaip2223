@@ -16,7 +16,7 @@ public class Container : IContainer
     public Container()
     {
         this.container = new DryIoc.Container();
-        
+
         IStrategy crs = new ContainerRegisterStrategy(this.container);
         this.container.RegisterInstance(crs, serviceKey: "IoC.Register");
     }

@@ -1,4 +1,5 @@
 namespace SpaceBattleTests.Entities.Commands;
+using SpaceBattleTests.Misc.Strategies;
 
 using SpaceBattle.Entities.Commands;
 using SpaceBattle.Base;
@@ -9,13 +10,16 @@ using System;
 
 using Moq;
 
-public class StartMoveCommandTests {
-    static StartMoveCommandTests() {
+public class StartMoveCommandTests
+{
+    static StartMoveCommandTests()
+    {
         IContainer container;
-        try {
-            ServiceLocator.Register("IoC", new InjectContainerStrategy());
-        } 
-        catch(Exception){}
+        try
+        {
+            ServiceLocator.Register("IoC", new InjectReRegisterableIoC());
+        }
+        catch (Exception) { }
 
         container = ServiceLocator.Locate<IContainer>("IoC");
 
@@ -26,11 +30,12 @@ public class StartMoveCommandTests {
     }
 
     [Fact(Timeout = 1000)]
-    public void StartMoveCommand_Success(){
+    public void StartMoveCommand_Success()
+    {
         // Init test dependencies
         var MoveCmdStartable = new Mock<IMoveCommandStartable>();
         var UObjectMock = new Mock<IUObject>();
-        List<int> Velocity = new List<int>{ 42 };
+        List<int> Velocity = new List<int> { 42 };
 
         UObjectMock.SetupSet(uo => uo["velocity"] = Velocity).Verifiable();
 
@@ -50,9 +55,10 @@ public class StartMoveCommandTests {
     }
 
     [Fact(Timeout = 1000)]
-    public void StartMoveCommand_StartableIsNull_Failed() {
+    public void StartMoveCommand_StartableIsNull_Failed()
+    {
         // Init test dependencies
-        List<int> Velocity = new List<int>{ 42 };
+        List<int> Velocity = new List<int> { 42 };
 
         // Create StartMoveCommand
         var smc = new StartMoveCommand(null!);
@@ -73,9 +79,9 @@ class SetupPropertyStrategy : IStrategy
         var value = argv[2];
 
         var SetupPropertyCommand = new Mock<ICommand>();
-        SetupPropertyCommand.Setup(spc => spc.Run()).Callback(new Action(() => target["velocity"] = value ));
+        SetupPropertyCommand.Setup(spc => spc.Run()).Callback(new Action(() => target["velocity"] = value));
 
-        return  SetupPropertyCommand.Object;
+        return SetupPropertyCommand.Object;
     }
 }
 
@@ -106,7 +112,7 @@ class QueuePushStrategy : IStrategy
         var val = (ICommand)argv[1];
 
         var QueuePusher = new Mock<ICommand>();
-        
+
         QueuePusher.Setup(qp => qp.Run()).Callback(new Action(() => q.Push(val)));
 
         return QueuePusher.Object;

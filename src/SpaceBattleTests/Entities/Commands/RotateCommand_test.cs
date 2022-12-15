@@ -1,5 +1,6 @@
-namespace SpaceBattleTests.Entities;
+namespace SpaceBattleTests.Entities.Commands;
 using SpaceBattleTests.Attributes;
+using SpaceBattleTests.Misc.Strategies;
 
 using SpaceBattle.Entities.Commands;
 using SpaceBattle.Collections;
@@ -18,12 +19,14 @@ class TestAngle : IAngle
     private int num;
     private int denom;
 
-    public TestAngle(int num, int denom) {
+    public TestAngle(int num, int denom)
+    {
         this.Numerator = num;
         this.Denominator = denom;
     }
 
-    public TestAngle() {
+    public TestAngle()
+    {
         this.Numerator = 0;
         this.Denominator = 1;
     }
@@ -44,30 +47,38 @@ class TestAngle : IAngle
     // override object.Equals
     public override bool Equals(object obj)
     {
-        
+
         if (obj == null || GetType() != obj.GetType())
         {
             return false;
         }
-        
+
         TestAngle other = (TestAngle)obj;
 
         return this.Numerator == other.Numerator && this.Denominator == other.Denominator;
     }
 
+    public override int GetHashCode()
+    {
+        throw new NotImplementedException();
+    }
 }
 
 
-class AngleVectorAdditionStrategy : IStrategy {
-    public object Run(params object[] argv) {
+class AngleVectorAdditionStrategy : IStrategy
+{
+    public object Run(params object[] argv)
+    {
         var left = (IList<IAngle>)argv[0];
         var right = (IList<IAngle>)argv[1];
 
-        if (left is null || right is null) {
+        if (left is null || right is null)
+        {
             throw new NullReferenceException();
         }
 
-        for(int i = 0, Size = left.Count; i < Size; i++) {
+        for (int i = 0, Size = left.Count; i < Size; i++)
+        {
             left[i] = left[i].Add(right[i]);
         }
 
@@ -75,28 +86,24 @@ class AngleVectorAdditionStrategy : IStrategy {
     }
 }
 
-public class InjectContainerStrategy : IStrategy {
-    private readonly Container cont = new Container();
+public class RotateCommandTests
+{
 
-    public object Run(params object[] argv) {
-        return cont;
-    }
-}
-
-public class RotateCommandTests {
-
-    static RotateCommandTests() {
+    static RotateCommandTests()
+    {
         IContainer cont;
-        try{
-            ServiceLocator.Register("IoC", new InjectContainerStrategy());
-        } 
-        catch(Exception){}
+        try
+        {
+            ServiceLocator.Register("IoC", new InjectReRegisterableIoC());
+        }
+        catch (Exception) { }
         cont = ServiceLocator.Locate<IContainer>("IoC");
         cont.Resolve<int>("IoC.Register", "Math.IList.IAngle.Addition", typeof(AngleVectorAdditionStrategy));
     }
 
-    [Fact(Timeout=100)]
-    public void RealAngleTest (){
+    [Fact(Timeout = 100)]
+    public void RealAngleTest()
+    {
         // Prepare
         var CurrentAngleMock = new Mock<IAngle>();
         var ReturnAngleMock = new Mock<IAngle>();
@@ -110,9 +117,9 @@ public class RotateCommandTests {
 
         var RotatableMock = new Mock<IRotatable>();
 
-        RotatableMock.SetupGet(r => r.Rotation).Returns(new IAngle[]{ CurrentAngleMock.Object});
+        RotatableMock.SetupGet(r => r.Rotation).Returns(new IAngle[] { CurrentAngleMock.Object });
 
-        RotatableMock.SetupGet(r => r.RotationSpeed).Returns(new IAngle[]{CurrentAngleMock.Object});
+        RotatableMock.SetupGet(r => r.RotationSpeed).Returns(new IAngle[] { CurrentAngleMock.Object });
 
         var Rotater = new RotateCommand(RotatableMock.Object);
 
@@ -194,8 +201,8 @@ public class RotateCommandTests {
     {
         // Prepare
         var Mock = new Mock<IRotatable>();
-        Mock.SetupProperty(Rot => Rot.Rotation, new TestAngle[] {});
-        Mock.SetupGet(Rot => Rot.RotationSpeed).Returns(new TestAngle[] {});
+        Mock.SetupProperty(Rot => Rot.Rotation, new TestAngle[] { });
+        Mock.SetupGet(Rot => Rot.RotationSpeed).Returns(new TestAngle[] { });
 
         var Rotater = new RotateCommand(Mock.Object);
 
@@ -203,7 +210,7 @@ public class RotateCommandTests {
         Rotater.Run();
 
         // Assertation
-        Assert.Equal(new TestAngle[]{}, Mock.Object.Rotation);
+        Assert.Equal(new TestAngle[] { }, Mock.Object.Rotation);
     }
 
     [Fact(Timeout = 1000)]

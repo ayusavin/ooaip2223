@@ -1,5 +1,5 @@
 namespace SpaceBattleTests.Collections;
 
-internal interface IDependency {}
+internal interface IDependency { }
 
-internal class TestDependency : IDependency {}
+internal class TestDependency : IDependency { }

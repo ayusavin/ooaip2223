@@ -3,10 +3,11 @@ using SpaceBattle.Collections;
 using SpaceBattle.Base;
 
 internal class TestStatefulInjector : IStrategy
-{      
+{
     IDependency dpd;
 
-    public TestStatefulInjector(IDependency dpd) {
+    public TestStatefulInjector(IDependency dpd)
+    {
         this.dpd = dpd;
     }
 
@@ -16,11 +17,13 @@ internal class TestStatefulInjector : IStrategy
     }
 }
 
-public class ServiceLocatorTessts {
+public class ServiceLocatorTessts
+{
 
 
     [Fact]
-    void RegisterAndLocateTest() {
+    void RegisterAndLocateTest()
+    {
         string depName = "Test.Dependency";
         var dependency = new TestDependency();
 

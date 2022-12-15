@@ -1,5 +1,6 @@
 namespace SpaceBattleTests.Entities.Commands;
 using SpaceBattleTests.Attributes;
+using SpaceBattleTests.Misc.Strategies;
 
 using SpaceBattle.Entities.Commands;
 using SpaceBattle.Base;
@@ -17,32 +18,29 @@ public class MoveAdditionStrategy : IStrategy
         var left = (IList<int>)argv[0];
         var right = (IList<int>)argv[1];
 
-        if (left is null || right is null) {
+        if (left is null || right is null)
+        {
             throw new NullReferenceException();
         }
 
-        for(int i = 0, Size = left.Count(); i < Size; ++i) {
+        for (int i = 0, Size = left.Count(); i < Size; ++i)
+        {
             left[i] += right[i];
         }
         return left;
     }
 }
 
-public class InjectContainerStrategy : IStrategy {
-    private readonly Container cont = new Container();
-
-    public object Run(params object[] argv) {
-        return cont;
-    }
-}
-
 public class MoveCommandTests
 {
-    static MoveCommandTests() {
+    static MoveCommandTests()
+    {
         IContainer cont;
-        try{
-            ServiceLocator.Register("IoC", new InjectContainerStrategy());
-        } catch(Exception){}
+        try
+        {
+            ServiceLocator.Register("IoC", new InjectReRegisterableIoC());
+        }
+        catch (Exception) { }
         cont = ServiceLocator.Locate<IContainer>("IoC");
         cont.Resolve<int>("IoC.Register", "Math.IList.Int32.Addition", typeof(MoveAdditionStrategy));
     }
