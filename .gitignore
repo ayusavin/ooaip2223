@@ -348,3 +348,11 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Enviroment, used in development
+.devcontainer
+
+# Unused coverage report badges
+badge_shieldsio*
+badge_combined.svg
+badge_branchcoverage.svg
