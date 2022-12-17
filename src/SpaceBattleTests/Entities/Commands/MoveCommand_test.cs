@@ -11,25 +11,7 @@ using System;
 
 using Moq;
 
-public class MoveAdditionStrategy : IStrategy
-{
-    public object Run(params object[] argv)
-    {
-        var left = (IList<int>)argv[0];
-        var right = (IList<int>)argv[1];
-
-        if (left is null || right is null)
-        {
-            throw new NullReferenceException();
-        }
-
-        for (int i = 0, Size = left.Count(); i < Size; ++i)
-        {
-            left[i] += right[i];
-        }
-        return left;
-    }
-}
+using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
 
 public class MoveCommandTests
 {
@@ -38,11 +20,17 @@ public class MoveCommandTests
         IContainer cont;
         try
         {
-            ServiceLocator.Register("IoC", new InjectReRegisterableIoC());
+            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
         }
         catch (Exception) { }
         cont = ServiceLocator.Locate<IContainer>("IoC");
-        cont.Resolve<int>("IoC.Register", "Math.IList.Int32.Addition", typeof(MoveAdditionStrategy));
+        cont.Resolve<ICommand>(
+            "Scopes.Current.Set", 
+            cont.Resolve<object>(
+                "Scopes.New", cont.Resolve<object>("Scopes.Root")
+            )
+        ).Run();
+        cont.Resolve<ICommand>("IoC.Register", "Math.IList.Int32.Addition", typeof(MoveAdditionStrategy)).Run();
     }
 
     [Theory(Timeout = 1000)]
@@ -78,6 +66,7 @@ public class MoveCommandTests
     [Repeat(50)]
     public void RandomSuccessfulMoveTests(int _)
     {
+        ServiceLocator.Locate<IContainer>("IoC");
 
         // Initialization
         Random rand = new Random();
@@ -142,5 +131,25 @@ public class MoveCommandTests
 
         // Assertation
         Assert.Throws<NullReferenceException>(() => Mover.Run());
+    }
+}
+
+public class MoveAdditionStrategy : IStrategy
+{
+    public object Run(params object[] argv)
+    {
+        var left = (IList<int>)argv[0];
+        var right = (IList<int>)argv[1];
+
+        if (left is null || right is null)
+        {
+            throw new NullReferenceException();
+        }
+
+        for (int i = 0, Size = left.Count(); i < Size; ++i)
+        {
+            left[i] += right[i];
+        }
+        return left;
     }
 }

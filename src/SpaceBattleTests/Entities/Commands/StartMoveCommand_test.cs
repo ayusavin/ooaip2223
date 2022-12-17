@@ -10,6 +10,8 @@ using System;
 
 using Moq;
 
+using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
+
 public class StartMoveCommandTests
 {
     static StartMoveCommandTests()
@@ -17,16 +19,22 @@ public class StartMoveCommandTests
         IContainer container;
         try
         {
-            ServiceLocator.Register("IoC", new InjectReRegisterableIoC());
+            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
         }
         catch (Exception) { }
 
         container = ServiceLocator.Locate<IContainer>("IoC");
 
-        container.Resolve<int>("IoC.Register", "Object.SetupProperty", typeof(SetupPropertyStrategy));
-        container.Resolve<int>("IoC.Register", "Entities.Adapters.IMovable", typeof(MovableAdapterInjectStrategy));
-        container.Resolve<int>("IoC.Register", "Entities.Commands.MoveCommand", typeof(CommandInjectStrategy));
-        container.Resolve<int>("IoC.Register", "Collections.Queue.Push", typeof(QueuePushStrategy));
+        container.Resolve<ICommand>(
+            "Scopes.Current.Set", 
+            container.Resolve<object>(
+                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            )
+        ).Run();
+        container.Resolve<ICommand>("IoC.Register", "Object.SetupProperty", typeof(SetupPropertyStrategy)).Run();
+        container.Resolve<ICommand>("IoC.Register", "Entities.Adapters.IMovable", typeof(MovableAdapterInjectStrategy)).Run();
+        container.Resolve<ICommand>("IoC.Register", "Entities.Commands.MoveCommand", typeof(CommandInjectStrategy)).Run();
+        container.Resolve<ICommand>("IoC.Register", "Collections.Queue.Push", typeof(QueuePushStrategy)).Run();
     }
 
     [Fact(Timeout = 1000)]
@@ -37,7 +45,7 @@ public class StartMoveCommandTests
         var UObjectMock = new Mock<IUObject>();
         List<int> Velocity = new List<int> { 42 };
 
-        UObjectMock.SetupSet(uo => uo["velocity"] = Velocity).Verifiable();
+        UObjectMock.SetupSet(uo => uo[It.IsAny<string>()] = Velocity).Verifiable();
 
         MoveCmdStartable.SetupGet(mcs => mcs.Queue).Returns(new FakeQueue<ICommand>());
         MoveCmdStartable.SetupGet(mcs => mcs.Velocity).Returns(Velocity);
@@ -79,7 +87,7 @@ class SetupPropertyStrategy : IStrategy
         var value = argv[2];
 
         var SetupPropertyCommand = new Mock<ICommand>();
-        SetupPropertyCommand.Setup(spc => spc.Run()).Callback(new Action(() => target["velocity"] = value));
+        SetupPropertyCommand.Setup(spc => spc.Run()).Callback(new Action(() => target[It.IsAny<string>()] = value));
 
         return SetupPropertyCommand.Object;
     }
