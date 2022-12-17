@@ -1,29 +1,19 @@
 namespace SpaceBattleTests.Entities.Commands;
-using SpaceBattleTests.Misc.Strategies;
 
 using SpaceBattle.Entities.Commands;
-using SpaceBattle.Base;
 using SpaceBattle.Collections;
+using SpaceBattle.Base;
 using SpaceBattle.Base.Collections;
 
 using System;
 
 using Moq;
 
-using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
-
 public class StartMoveCommandTests
 {
     static StartMoveCommandTests()
     {
-        IContainer container;
-        try
-        {
-            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
-        }
-        catch (Exception) { }
-
-        container = ServiceLocator.Locate<IContainer>("IoC");
+        var container = new Container();
 
         container.Resolve<ICommand>(
             "Scopes.Current.Set", 
@@ -31,6 +21,7 @@ public class StartMoveCommandTests
                 "Scopes.New", container.Resolve<object>("Scopes.Root")
             )
         ).Run();
+
         container.Resolve<ICommand>("IoC.Register", "Object.SetupProperty", typeof(SetupPropertyStrategy)).Run();
         container.Resolve<ICommand>("IoC.Register", "Entities.Adapters.IMovable", typeof(MovableAdapterInjectStrategy)).Run();
         container.Resolve<ICommand>("IoC.Register", "Entities.Commands.MoveCommand", typeof(CommandInjectStrategy)).Run();

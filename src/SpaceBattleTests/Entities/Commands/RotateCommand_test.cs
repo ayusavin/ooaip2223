@@ -1,36 +1,28 @@
 namespace SpaceBattleTests.Entities.Commands;
 using SpaceBattleTests.Attributes;
-using SpaceBattleTests.Misc.Strategies;
 
 using SpaceBattle.Entities.Commands;
 using SpaceBattle.Collections;
 using SpaceBattle.Base;
-using SpaceBattle.Base.Collections;
 
 using System;
 
 using Moq;
-
-using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
 
 public class RotateCommandTests
 {
 
     static RotateCommandTests()
     {
-        IContainer cont;
-        try
-        {
-            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
-        }
-        catch (Exception) { }
-        cont = ServiceLocator.Locate<IContainer>("IoC");
+        var cont = new Container();
+        
         cont.Resolve<ICommand>(
             "Scopes.Current.Set", 
             cont.Resolve<object>(
                 "Scopes.New", cont.Resolve<object>("Scopes.Root")
             )
         ).Run();
+
         cont.Resolve<ICommand>("IoC.Register", "Math.IList.IAngle.Addition", typeof(AngleVectorAdditionStrategy)).Run();
     }
 

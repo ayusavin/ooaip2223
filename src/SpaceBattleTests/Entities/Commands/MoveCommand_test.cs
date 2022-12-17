@@ -1,35 +1,27 @@
 namespace SpaceBattleTests.Entities.Commands;
 using SpaceBattleTests.Attributes;
-using SpaceBattleTests.Misc.Strategies;
 
 using SpaceBattle.Entities.Commands;
-using SpaceBattle.Base;
 using SpaceBattle.Collections;
-using SpaceBattle.Base.Collections;
+using SpaceBattle.Base;
 
 using System;
 
 using Moq;
 
-using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
-
 public class MoveCommandTests
 {
     static MoveCommandTests()
     {
-        IContainer cont;
-        try
-        {
-            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
-        }
-        catch (Exception) { }
-        cont = ServiceLocator.Locate<IContainer>("IoC");
+        var cont = new Container();
+
         cont.Resolve<ICommand>(
             "Scopes.Current.Set", 
             cont.Resolve<object>(
                 "Scopes.New", cont.Resolve<object>("Scopes.Root")
             )
         ).Run();
+
         cont.Resolve<ICommand>("IoC.Register", "Math.IList.Int32.Addition", typeof(MoveAdditionStrategy)).Run();
     }
 
@@ -66,8 +58,6 @@ public class MoveCommandTests
     [Repeat(50)]
     public void RandomSuccessfulMoveTests(int _)
     {
-        ServiceLocator.Locate<IContainer>("IoC");
-
         // Initialization
         Random rand = new Random();
 
