@@ -2,12 +2,11 @@ namespace SpaceBattleTests.Misc.Strategies;
 using SpaceBattle.Collections;
 using SpaceBattle.Base;
 
-public class InjectContainerStrategy : IStrategy
+public class InjectContainerStrategy<ContainerType> : IStrategy
 {
-    private readonly Container cont = new Container();
-
+    ContainerType Container = Activator.CreateInstance<ContainerType>();
     public object Run(params object[] argv)
     {
-        return cont;
+        return Container!;
     }
 }

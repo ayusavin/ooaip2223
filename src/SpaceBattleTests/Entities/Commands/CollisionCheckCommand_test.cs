@@ -11,20 +11,21 @@ using System;
 
 using Moq;
 
-[CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
+
+//[CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
 public class CollisionCheckCommandTests
 {
 
+    private string collisionKey = "Events.Collision.Determinant";
+
     static CollisionCheckCommandTests()
     {
-        IContainer container;
         try
         {
-            ServiceLocator.Register("IoC", new InjectReRegisterableIoC());
+            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
         }
         catch (Exception) { }
-
-        container = ServiceLocator.Locate<IContainer>("IoC");
     }
 
     [Fact(Timeout = 1000)]
@@ -36,7 +37,13 @@ public class CollisionCheckCommandTests
         var First = new Mock<IUObject>();
         var Second = new Mock<IUObject>();
 
-        container.Resolve<int>("IoC.Register", "Events.Collision.Determinant", typeof(TrueCollisionDeterminantStrategy));
+        container.Resolve<ICommand>(
+            "Scopes.Current.Set", 
+            container.Resolve<object>(
+                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            )
+        ).Run();
+        container.Resolve<ICommand>("IoC.Register", collisionKey, typeof(TrueCollisionDeterminantStrategy)).Run();
 
         // Create target
         var ccm = new CollisionCheckCommand(First.Object, Second.Object);
@@ -54,7 +61,13 @@ public class CollisionCheckCommandTests
         var First = new Mock<IUObject>();
         var Second = new Mock<IUObject>();
 
-        container.Resolve<int>("IoC.Register", "Events.Collision.Determinant", typeof(FalseCollisionDeterminantStrategy));
+        container.Resolve<ICommand>(
+            "Scopes.Current.Set", 
+            container.Resolve<object>(
+                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            )
+        ).Run();
+        container.Resolve<ICommand>("IoC.Register", collisionKey, typeof(FalseCollisionDeterminantStrategy)).Run();
 
         // Create target
         var ccm = new CollisionCheckCommand(First.Object, Second.Object);
@@ -70,7 +83,13 @@ public class CollisionCheckCommandTests
         // Init dependencies
         var Second = new Mock<IUObject>();
 
-        container.Resolve<int>("IoC.Register", "Events.Collision.Determinant", typeof(NullCheckCollisionCommand));
+        container.Resolve<ICommand>(
+            "Scopes.Current.Set", 
+            container.Resolve<object>(
+                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            )
+        ).Run();
+        container.Resolve<ICommand>("IoC.Register", collisionKey, typeof(NullCheckCollisionCommand)).Run();
 
         // Create target
         var ccm = new CollisionCheckCommand(null!, Second.Object);
@@ -85,7 +104,13 @@ public class CollisionCheckCommandTests
         // Init dependencies
         var First = new Mock<IUObject>();
 
-        container.Resolve<int>("IoC.Register", "Events.Collision.Determinant", typeof(NullCheckCollisionCommand));
+        container.Resolve<ICommand>(
+            "Scopes.Current.Set", 
+            container.Resolve<object>(
+                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            )
+        ).Run();
+        container.Resolve<ICommand>("IoC.Register", collisionKey, typeof(NullCheckCollisionCommand)).Run();
 
         // Create target
         var ccm = new CollisionCheckCommand(First.Object, null!);

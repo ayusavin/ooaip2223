@@ -356,3 +356,6 @@ MigrationBackup/
 badge_shieldsio*
 badge_combined.svg
 badge_branchcoverage.svg
+
+# VSCode data
+.vscode
