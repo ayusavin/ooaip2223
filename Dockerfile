@@ -1,6 +1,6 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as dev
+FROM bitnami/dotnet-sdk:6.0.404-debian-11-r1 as dev
 
-FROM dev as tests
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine as tests
 
 COPY ./src /app/
 

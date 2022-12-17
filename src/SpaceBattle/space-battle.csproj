@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DryIoc.dll" Version="5.3.1" />
+    <PackageReference Include="Hwdtech.Ioc.ScopeBasedIoCImplementation" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

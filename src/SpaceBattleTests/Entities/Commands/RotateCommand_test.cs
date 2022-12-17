@@ -11,80 +11,7 @@ using System;
 
 using Moq;
 
-//  Description:
-//          The TestAngle class implements operations sufficient for testing RotateCommand,
-//           while not guaranteeing the correctness of algebraic operations on fractions
-class TestAngle : IAngle
-{
-    private int num;
-    private int denom;
-
-    public TestAngle(int num, int denom)
-    {
-        this.Numerator = num;
-        this.Denominator = denom;
-    }
-
-    public TestAngle()
-    {
-        this.Numerator = 0;
-        this.Denominator = 1;
-    }
-
-    public int Numerator { get => this.num; set => this.num = value; }
-    public int Denominator { get => this.denom; set => this.denom = value; }
-
-    public IAngle Add(IAngle other)
-    {
-        TestAngle result = new TestAngle();
-
-        result.Numerator = this.Numerator + other.Numerator;
-        result.Denominator = this.Denominator + other.Denominator;
-
-        return result;
-    }
-
-    // override object.Equals
-    public override bool Equals(object obj)
-    {
-
-        if (obj == null || GetType() != obj.GetType())
-        {
-            return false;
-        }
-
-        TestAngle other = (TestAngle)obj;
-
-        return this.Numerator == other.Numerator && this.Denominator == other.Denominator;
-    }
-
-    public override int GetHashCode()
-    {
-        throw new NotImplementedException();
-    }
-}
-
-
-class AngleVectorAdditionStrategy : IStrategy
-{
-    public object Run(params object[] argv)
-    {
-        var left = (IList<IAngle>)argv[0];
-        var right = (IList<IAngle>)argv[1];
-
-        if (left is null || right is null)
-        {
-            throw new NullReferenceException();
-        }
-
-        for (int i = 0, Size = left.Count; i < Size; i++)
-        {
-            left[i] = left[i].Add(right[i]);
-        }
-
-        return left;
-    }
-}
+using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
 
 public class RotateCommandTests
 {
@@ -94,11 +21,17 @@ public class RotateCommandTests
         IContainer cont;
         try
         {
-            ServiceLocator.Register("IoC", new InjectReRegisterableIoC());
+            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
         }
         catch (Exception) { }
         cont = ServiceLocator.Locate<IContainer>("IoC");
-        cont.Resolve<int>("IoC.Register", "Math.IList.IAngle.Addition", typeof(AngleVectorAdditionStrategy));
+        cont.Resolve<ICommand>(
+            "Scopes.Current.Set", 
+            cont.Resolve<object>(
+                "Scopes.New", cont.Resolve<object>("Scopes.Root")
+            )
+        ).Run();
+        cont.Resolve<ICommand>("IoC.Register", "Math.IList.IAngle.Addition", typeof(AngleVectorAdditionStrategy)).Run();
     }
 
     [Fact(Timeout = 100)]
@@ -257,5 +190,80 @@ public class RotateCommandTests
 
         // Assertation
         Assert.Throws<NullReferenceException>(() => Rotater.Run());
+    }
+}
+
+//  Description:
+//          The TestAngle class implements operations sufficient for testing RotateCommand,
+//           while not guaranteeing the correctness of algebraic operations on fractions
+class TestAngle : IAngle
+{
+    private int num;
+    private int denom;
+
+    public TestAngle(int num, int denom)
+    {
+        this.Numerator = num;
+        this.Denominator = denom;
+    }
+
+    public TestAngle()
+    {
+        this.Numerator = 0;
+        this.Denominator = 1;
+    }
+
+    public int Numerator { get => this.num; set => this.num = value; }
+    public int Denominator { get => this.denom; set => this.denom = value; }
+
+    public IAngle Add(IAngle other)
+    {
+        TestAngle result = new TestAngle();
+
+        result.Numerator = this.Numerator + other.Numerator;
+        result.Denominator = this.Denominator + other.Denominator;
+
+        return result;
+    }
+
+    // override object.Equals
+    public override bool Equals(object obj)
+    {
+
+        if (obj == null || GetType() != obj.GetType())
+        {
+            return false;
+        }
+
+        TestAngle other = (TestAngle)obj;
+
+        return this.Numerator == other.Numerator && this.Denominator == other.Denominator;
+    }
+
+    public override int GetHashCode()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+
+class AngleVectorAdditionStrategy : IStrategy
+{
+    public object Run(params object[] argv)
+    {
+        var left = (IList<IAngle>)argv[0];
+        var right = (IList<IAngle>)argv[1];
+
+        if (left is null || right is null)
+        {
+            throw new NullReferenceException();
+        }
+
+        for (int i = 0, Size = left.Count; i < Size; i++)
+        {
+            left[i] = left[i].Add(right[i]);
+        }
+
+        return left;
     }
 }
