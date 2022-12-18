@@ -1,37 +1,22 @@
 namespace SpaceBattleTests.Entities.Commands;
-using SpaceBattleTests.Misc.Strategies;
 
 using SpaceBattle.Entities.Commands;
 using SpaceBattle.Base;
 using SpaceBattle.Collections;
-using SpaceBattle.Base.Collections;
-using System.Reflection;
 
 using System;
 
 using Moq;
 
-using TestContainerType = SpaceBattle.Collections.HWDTechContainer;
-
-//[CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
 public class CollisionCheckCommandTests
 {
 
     private string collisionKey = "Events.Collision.Determinant";
 
-    static CollisionCheckCommandTests()
-    {
-        try
-        {
-            ServiceLocator.Register("IoC", new InjectContainerStrategy<TestContainerType>());
-        }
-        catch (Exception) { }
-    }
-
     [Fact(Timeout = 1000)]
     void CollisionCheck_Conflict_Succesful()
     {
-        var container = ServiceLocator.Locate<IContainer>("IoC");
+        var container = new Container();
 
         // Init dependencies
         var First = new Mock<IUObject>();
@@ -55,7 +40,7 @@ public class CollisionCheckCommandTests
     [Fact(Timeout = 1000)]
     void CollisionCheck_NoConflict_Succesful()
     {
-        var container = ServiceLocator.Locate<IContainer>("IoC");
+        var container = new Container();
 
         // Init dependencies
         var First = new Mock<IUObject>();
@@ -78,7 +63,7 @@ public class CollisionCheckCommandTests
     [Fact(Timeout = 1000)]
     void CollisionCheck_NullFirst_ThrowsException()
     {
-        var container = ServiceLocator.Locate<IContainer>("IoC");
+        var container = new Container();
 
         // Init dependencies
         var Second = new Mock<IUObject>();
@@ -99,7 +84,7 @@ public class CollisionCheckCommandTests
 
     void CollisionCheck_NullSecond_ThrowsException()
     {
-        var container = ServiceLocator.Locate<IContainer>("IoC");
+        var container = new Container();
 
         // Init dependencies
         var First = new Mock<IUObject>();

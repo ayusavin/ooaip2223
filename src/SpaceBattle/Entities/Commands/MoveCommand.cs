@@ -1,7 +1,6 @@
 namespace SpaceBattle.Entities.Commands;
 
 using SpaceBattle.Base;
-using SpaceBattle.Base.Collections;
 using SpaceBattle.Collections;
 
 public class MoveCommand : ICommand
@@ -16,7 +15,7 @@ public class MoveCommand : ICommand
 
     public void Run()
     {
-        var container = ServiceLocator.Locate<IContainer>("IoC");
+        var container = new Container();
         this.movable.Position = container.Resolve<IList<int>>("Math.IList.Int32.Addition", movable.Position, movable.MoveSpeed);
     }
 }

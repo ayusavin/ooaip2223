@@ -1,50 +1,71 @@
 namespace SpaceBattle.Collections;
 
+using SpaceBattle.Base.Collections;
 using SpaceBattle.Base;
-using IContainer = Base.Collections.IContainer;
 
-using DryIoc;
+using Hwdtech;
+using Hwdtech.Ioc;
 
 // Description:
-//        Implementation of the IContainer interface, which is a wrapper over
-//        the Inversion of Control container from the DryIoc microframework
+//      Implementation of ineversion of control container,
+//      uses IoC by HWDTech
 public class Container : IContainer
 {
+    static private readonly Dictionary<string, IStrategy> strategies = new Dictionary<string, IStrategy>();
 
-    private readonly DryIoc.Container container;
+    static Container() {
+        strategies.Add("IoC.Register", new RegisterStrategy());
+        strategies.Add("Scopes.Current.Set", new CurrentScopeSetStrategy());
 
-    public Container()
-    {
-        this.container = new DryIoc.Container();
-
-        IStrategy crs = new ContainerRegisterStrategy(this.container);
-        this.container.RegisterInstance(crs, serviceKey: "IoC.Register");
+        new InitScopeBasedIoCImplementationCommand().Execute();
     }
 
     public ReturnType Resolve<ReturnType>(string key, params object[] argv)
     {
-        return (ReturnType)container.Resolve<IStrategy>(serviceKey: key).Run(argv);
+        object result;
+        try {
+            result = strategies[key].Run(argv);
+        } 
+        catch(Exception) {
+            result = IoC.Resolve<ReturnType>(key, argv)!;
+        }
+        return (ReturnType)result;
     }
-
 }
 
-// Description:
-//       Default Container dependency register strategy
-public class ContainerRegisterStrategy : IStrategy
+class RegisterStrategy : IStrategy
 {
-    private readonly DryIoc.Container container;
-
-    public ContainerRegisterStrategy(DryIoc.Container cont)
-    {
-        container = cont;
-    }
-
     public object Run(params object[] argv)
     {
-        var ServiceKey = (string)argv[0];
-        var Strategy = (Type)argv[1];
-        this.container.Register(typeof(IStrategy), Strategy, serviceKey: ServiceKey);
+        string name = (string)argv[0];
+        Type type = (Type)argv[1];
 
-        return 0;
+        IStrategy strategy = (IStrategy)Activator.CreateInstance(type)!;
+        var Delegate = (object[] args) => {return strategy.Run(args);};
+
+        var cmd = new HWDCommandAdapter(IoC.Resolve<Hwdtech.ICommand>("IoC.Register", name, Delegate));
+
+        return cmd;
+    }
+}
+
+class CurrentScopeSetStrategy : IStrategy
+{
+    public object Run(params object[] argv)
+    {
+        return new HWDCommandAdapter(IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", argv));
+    }
+}
+
+class HWDCommandAdapter : SpaceBattle.Base.ICommand
+{
+    Hwdtech.ICommand cmd;
+    public HWDCommandAdapter(Hwdtech.ICommand cmd) {
+        this.cmd  = cmd;
+    }
+
+    public void Run()
+    {
+        cmd.Execute();
     }
 }

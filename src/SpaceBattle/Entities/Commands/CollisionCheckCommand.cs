@@ -2,7 +2,6 @@ namespace SpaceBattle.Entities.Commands;
 
 using SpaceBattle.Base;
 using SpaceBattle.Collections;
-using SpaceBattle.Base.Collections;
 
 public class CollisionCheckCommand : ICommand
 {
@@ -16,7 +15,7 @@ public class CollisionCheckCommand : ICommand
 
     public void Run()
     {
-        var container = ServiceLocator.Locate<IContainer>("IoC");
+        var container = new Container();
 
         bool result = container.Resolve<bool>("Events.Collision.Determinant",
                                                this.first,
