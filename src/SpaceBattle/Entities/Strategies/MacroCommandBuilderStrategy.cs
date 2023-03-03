@@ -27,14 +27,12 @@ public class MacroCommandBuilderStrategy : IStrategy
         string dependenciesListKey = (string)argv[0];
         IUObject obj = (IUObject)argv[1];
 
-        var container = new Container();
-
-        IList<string> dependencies = container.Resolve<IList<string>>(dependenciesListKey);
+        IList<string> dependencies = Container.Resolve<IList<string>>(dependenciesListKey);
 
         IList<ICommand> commands = new List<ICommand>();
 
         foreach(string depName in dependencies) {
-            commands.Add(container.Resolve<ICommand>(depName, obj));
+            commands.Add(Container.Resolve<ICommand>(depName, obj));
         }
 
         return new MacroCommand(commands);

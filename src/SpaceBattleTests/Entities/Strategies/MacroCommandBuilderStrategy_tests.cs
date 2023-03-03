@@ -13,25 +13,23 @@ public class MacroCommandBuilderStrategyTests {
     [Fact(Timeout = 1000)]
     public void MacroCommandBuilderRun_Successful() {
         // Init dependencies
-        var container = new Container();
-
-        container.Resolve<ICommand>(
+        Container.Resolve<ICommand>(
             "Scopes.Current.Set", 
-            container.Resolve<object>(
-                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            Container.Resolve<object>(
+                "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
         ).Run();
 
         // Create dependencies names list
         IList<string> deps = (IList<string>)new DependenciesListInjector().Run();
         foreach(string depName in deps){
-            container.Resolve<ICommand>("IoC.Register", depName, typeof(MacroCommandBuilderTestDependency)).Run();
+            Container.Resolve<ICommand>("IoC.Register", depName, typeof(MacroCommandBuilderTestDependency)).Run();
         }
         
         var DependenciesListInjector = new Mock<IStrategy>();
         DependenciesListInjector.Setup(dli => dli.Run()).Returns(deps);
 
-        container.Resolve<ICommand>("IoC.Register", IoCDependencyKey, typeof(DependenciesListInjector)).Run();
+        Container.Resolve<ICommand>("IoC.Register", IoCDependencyKey, typeof(DependenciesListInjector)).Run();
 
         var IUobjectMock = new Mock<IUObject>();
 
