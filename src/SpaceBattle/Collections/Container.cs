@@ -9,7 +9,7 @@ using Hwdtech.Ioc;
 // Description:
 //      Implementation of ineversion of control container,
 //      uses IoC by HWDTech
-public class Container : IContainer
+public static class Container
 {
     static private readonly Dictionary<string, IStrategy> strategies = new Dictionary<string, IStrategy>();
 
@@ -26,7 +26,7 @@ public class Container : IContainer
     // Description:
     //      Resolve method returns the ReturnType dependency,
     //      with the name key and given arguments argv.
-    public ReturnType Resolve<ReturnType>(string key, params object[] argv)
+    public static ReturnType Resolve<ReturnType>(string key, params object[] argv)
     {
         object result;
         try {

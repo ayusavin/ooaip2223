@@ -51,13 +51,12 @@ public class StartMoveCommand : ICommand
 
     public void Run()
     {
-        var container = new Container();
-        container.Resolve<ICommand>("Object.SetupProperty", mcs.UObject, "velocity", mcs.Velocity).Run();
+        Container.Resolve<ICommand>("Object.SetupProperty", mcs.UObject, "velocity", mcs.Velocity).Run();
 
-        var Movable = container.Resolve<IMovable>("Entities.Adapters.IMovable", mcs);
+        var Movable = Container.Resolve<IMovable>("Entities.Adapters.IMovable", mcs);
 
-        var MoveCommand = container.Resolve<ICommand>("Entities.Commands.MoveCommand", Movable);
+        var MoveCommand = Container.Resolve<ICommand>("Entities.Commands.MoveCommand", Movable);
 
-        container.Resolve<ICommand>("Collections.Queue.Push", mcs.Queue, MoveCommand).Run();
+        Container.Resolve<ICommand>("Collections.Queue.Push", mcs.Queue, MoveCommand).Run();
     }
 }

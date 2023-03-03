@@ -29,7 +29,6 @@ public class MoveCommand : ICommand
 
     public void Run()
     {
-        var container = new Container();
-        this.movable.Position = container.Resolve<IList<int>>("Math.IList.Int32.Addition", movable.Position, movable.MoveSpeed);
+        this.movable.Position = Container.Resolve<IList<int>>("Math.IList.Int32.Addition", movable.Position, movable.MoveSpeed);
     }
 }

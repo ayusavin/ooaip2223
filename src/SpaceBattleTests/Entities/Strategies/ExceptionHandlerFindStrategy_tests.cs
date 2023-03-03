@@ -11,14 +11,13 @@ public class ExceptionHandlerFindStrategyTests {
     [Fact(Timeout = 1000)]
     void ExceptionHandlerFindStrategy_Successful() {
         // Init dependencies
-        var container = new Container();
-        container.Resolve<ICommand>(
+        Container.Resolve<ICommand>(
             "Scopes.Current.Set", 
-            container.Resolve<object>(
-                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            Container.Resolve<object>(
+                "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
         ).Run();
-        container.Resolve<ICommand>("IoC.Register","Handler.Exception", typeof(DictionaryInjectionStrategy)).Run();
+        Container.Resolve<ICommand>("IoC.Register","Handler.Exception", typeof(DictionaryInjectionStrategy)).Run();
 
         var ehfs = new ExceptionHandlerFindStrategy();
 

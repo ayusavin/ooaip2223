@@ -36,9 +36,7 @@ public class CollisionCheckCommand : ICommand
 
     public void Run()
     {
-        var container = new Container();
-
-        bool result = container.Resolve<bool>("Events.Collision.Determinant",
+        bool result = Container.Resolve<bool>("Events.Collision.Determinant",
                                                this.first,
                                                this.second);
 

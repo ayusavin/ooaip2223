@@ -6,13 +6,11 @@ using SpaceBattle.Base;
 public class ContainerTests {
     
     [Fact]
-    void ContainerResolveRegister_Succesful() {
-        var container = new Container();
-        
-        container.Resolve<ICommand>("Scopes.Current.Set", container.Resolve<object>("Scopes.New", container.Resolve<object>("Scopes.Root"))).Run();
-        container.Resolve<ICommand>("IoC.Register", "Test.Dependency", typeof(TestInjector)).Run();
+    void ContainerResolveRegister_Succesful() {        
+        Container.Resolve<ICommand>("Scopes.Current.Set", Container.Resolve<object>("Scopes.New", Container.Resolve<object>("Scopes.Root"))).Run();
+        Container.Resolve<ICommand>("IoC.Register", "Test.Dependency", typeof(TestInjector)).Run();
 
-        var dep = container.Resolve<IDependency>("Test.Dependency");
+        var dep = Container.Resolve<IDependency>("Test.Dependency");
 
         Assert.IsType(typeof(TestDependency), dep);
     }

@@ -13,16 +13,14 @@ public class MoveCommandTests
 {
     static MoveCommandTests()
     {
-        var cont = new Container();
-
-        cont.Resolve<ICommand>(
+        Container.Resolve<ICommand>(
             "Scopes.Current.Set", 
-            cont.Resolve<object>(
-                "Scopes.New", cont.Resolve<object>("Scopes.Root")
+            Container.Resolve<object>(
+                "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
         ).Run();
 
-        cont.Resolve<ICommand>("IoC.Register", "Math.IList.Int32.Addition", typeof(MoveAdditionStrategy)).Run();
+        Container.Resolve<ICommand>("IoC.Register", "Math.IList.Int32.Addition", typeof(MoveAdditionStrategy)).Run();
     }
 
     [Theory(Timeout = 1000)]

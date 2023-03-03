@@ -13,19 +13,17 @@ public class StartMoveCommandTests
 {
     static StartMoveCommandTests()
     {
-        var container = new Container();
-
-        container.Resolve<ICommand>(
+        Container.Resolve<ICommand>(
             "Scopes.Current.Set", 
-            container.Resolve<object>(
-                "Scopes.New", container.Resolve<object>("Scopes.Root")
+            Container.Resolve<object>(
+                "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
         ).Run();
 
-        container.Resolve<ICommand>("IoC.Register", "Object.SetupProperty", typeof(SetupPropertyStrategy)).Run();
-        container.Resolve<ICommand>("IoC.Register", "Entities.Adapters.IMovable", typeof(MovableAdapterInjectStrategy)).Run();
-        container.Resolve<ICommand>("IoC.Register", "Entities.Commands.MoveCommand", typeof(CommandInjectStrategy)).Run();
-        container.Resolve<ICommand>("IoC.Register", "Collections.Queue.Push", typeof(QueuePushStrategy)).Run();
+        Container.Resolve<ICommand>("IoC.Register", "Object.SetupProperty", typeof(SetupPropertyStrategy)).Run();
+        Container.Resolve<ICommand>("IoC.Register", "Entities.Adapters.IMovable", typeof(MovableAdapterInjectStrategy)).Run();
+        Container.Resolve<ICommand>("IoC.Register", "Entities.Commands.MoveCommand", typeof(CommandInjectStrategy)).Run();
+        Container.Resolve<ICommand>("IoC.Register", "Collections.Queue.Push", typeof(QueuePushStrategy)).Run();
     }
 
     [Fact(Timeout = 1000)]

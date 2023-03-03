@@ -10,9 +10,7 @@ public class ExceptionHandlerFindStrategy : IStrategy
         ICommand command = (ICommand)argv[0];
         Exception exception = (Exception)argv[1];
 
-        var container = new Container();
-
-        var ExceptionHandlers = container.Resolve<IDictionary<ICommand, IDictionary<Exception, IStrategy>>>("Handler.Exception");
+        var ExceptionHandlers = Container.Resolve<IDictionary<ICommand, IDictionary<Exception, IStrategy>>>("Handler.Exception");
 
         return ExceptionHandlers[command][exception];
     }

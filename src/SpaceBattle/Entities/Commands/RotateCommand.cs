@@ -29,7 +29,6 @@ public class RotateCommand : ICommand
 
     public void Run()
     {
-        var cont = new Container();
-        this.Rotatable.Rotation = cont.Resolve<IList<IAngle>>("Math.IList.IAngle.Addition", this.Rotatable.Rotation, this.Rotatable.RotationSpeed);
+        this.Rotatable.Rotation = Container.Resolve<IList<IAngle>>("Math.IList.IAngle.Addition", this.Rotatable.Rotation, this.Rotatable.RotationSpeed);
     }
 }
