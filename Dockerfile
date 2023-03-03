@@ -12,7 +12,7 @@ RUN dotnet add package ReportGenerator --version 5.1.10
 
 # Create Report
 WORKDIR /app/
-CMD dotnet /$(whoami)/.nuget/packages/reportgenerator/5.1.10/tools/net6.0/ReportGenerator.dll \
+CMD dotnet $HOME/.nuget/packages/reportgenerator/5.1.10/tools/net6.0/ReportGenerator.dll \
      -reports:$(find . -name "coverage.cobertura.xml") \
      -targetdir:coveragereport \
      "-reporttypes:HtmlInline;Badges" \
