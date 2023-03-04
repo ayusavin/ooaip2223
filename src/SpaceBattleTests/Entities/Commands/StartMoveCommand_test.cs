@@ -1,20 +1,18 @@
 namespace SpaceBattleTests.Entities.Commands;
 
-using SpaceBattle.Entities.Commands;
-using SpaceBattle.Collections;
+using System;
+using Moq;
 using SpaceBattle.Base;
 using SpaceBattle.Base.Collections;
-
-using System;
-
-using Moq;
+using SpaceBattle.Collections;
+using SpaceBattle.Entities.Commands;
 
 public class StartMoveCommandTests
 {
     static StartMoveCommandTests()
     {
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )

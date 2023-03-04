@@ -31,7 +31,8 @@ public class MacroCommandBuilderStrategy : IStrategy
 
         IList<ICommand> commands = new List<ICommand>();
 
-        foreach(string depName in dependencies) {
+        foreach (string depName in dependencies)
+        {
             commands.Add(Container.Resolve<ICommand>(depName, obj));
         }
 

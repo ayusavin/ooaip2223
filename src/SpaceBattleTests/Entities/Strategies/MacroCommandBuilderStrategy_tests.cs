@@ -1,20 +1,21 @@
 namespace SpaceBattleTests.Entities.Strategies;
 
+using Moq;
 using SpaceBattle.Base;
 using SpaceBattle.Collections;
 using SpaceBattle.Entities.Strategies;
 
-using Moq;
-
-public class MacroCommandBuilderStrategyTests {
+public class MacroCommandBuilderStrategyTests
+{
 
     private string IoCDependencyKey = "Tests.Dependencies.Key";
 
     [Fact(Timeout = 1000)]
-    public void MacroCommandBuilderRun_Successful() {
+    public void MacroCommandBuilderRun_Successful()
+    {
         // Init dependencies
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
@@ -22,10 +23,11 @@ public class MacroCommandBuilderStrategyTests {
 
         // Create dependencies names list
         IList<string> deps = (IList<string>)new DependenciesListInjector().Run();
-        foreach(string depName in deps){
+        foreach (string depName in deps)
+        {
             Container.Resolve<ICommand>("IoC.Register", depName, typeof(MacroCommandBuilderTestDependency)).Run();
         }
-        
+
         var DependenciesListInjector = new Mock<IStrategy>();
         DependenciesListInjector.Setup(dli => dli.Run()).Returns(deps);
 
@@ -50,7 +52,8 @@ class MacroCommandBuilderTestDependency : IStrategy
 {
     static public bool WasExecuted = false;
 
-    public object Run(params object[] argv){
+    public object Run(params object[] argv)
+    {
         var mockDep = new Mock<ICommand>();
         mockDep.Setup(mc => mc.Run()).Callback(() => WasExecuted = true);
         return mockDep.Object;

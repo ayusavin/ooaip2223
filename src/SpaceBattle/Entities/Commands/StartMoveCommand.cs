@@ -11,26 +11,26 @@ using SpaceBattle.Collections;
 // Container dependencies:
 //      ICommand Object.SetupProperty (IUObject, string key, object value):
 //          Command that sets the IUObject value with the given key.
-//      
+//
 //          Returns:
 //              Command that sets the value when the Run() method is called.
-//      
+//
 //      IMovable Entities.Adapter.IMovable(IMoveCommandStartable):
 //          An adapter that casts an IMoveCommandStartable to an IMovable interface.
-//      
+//
 //          Returns:
 //              Returns an IMovable-adapted object.
 //
 //      ICommand Entities.Commands.MoveCommand(IMovable):
 //          Command that performs the movement of IMovable object.
-//          
+//
 //          Returns:
 //              A command that perform the movement of the object on
 //              Run() method call.
-//      
+//
 //      ICommand Collections.Queue.Push (IQueue, ICommand):
 //          The command that pushes the command (argv[1]) to the given queue (argv[0]).
-//      
+//
 //      Parametres:
 //          IQueue<ICommand> argv[0]:
 //              The queue to which the command will be added.

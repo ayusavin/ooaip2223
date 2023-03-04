@@ -1,10 +1,9 @@
 namespace SpaceBattle.Collections;
 
-using SpaceBattle.Base.Collections;
-using SpaceBattle.Base;
-
 using Hwdtech;
 using Hwdtech.Ioc;
+using SpaceBattle.Base;
+using SpaceBattle.Base.Collections;
 
 // Description:
 //      Implementation of ineversion of control container,
@@ -16,7 +15,8 @@ public static class Container
     // Description:
     //      Static constructor init internal rewrited dependencies and
     //      basis Hwdtech.IoC dependencies.
-    static Container() {
+    static Container()
+    {
         strategies.Add("IoC.Register", new RegisterStrategy());
         strategies.Add("Scopes.Current.Set", new CurrentScopeSetStrategy());
 
@@ -29,10 +29,12 @@ public static class Container
     public static ReturnType Resolve<ReturnType>(string key, params object[] argv)
     {
         object result;
-        try {
+        try
+        {
             result = strategies[key].Run(argv);
-        } 
-        catch(Exception) {
+        }
+        catch (Exception)
+        {
             result = IoC.Resolve<ReturnType>(key, argv)!;
         }
         return (ReturnType)result;
@@ -46,7 +48,7 @@ public static class Container
 //          string argv[0]:
 //              The name of the dependency key to register.
 //          Type argv[1]:
-//              The type of dependency being logged. The type must inherit the 
+//              The type of dependency being logged. The type must inherit the
 //              IStrategy interface, otherwise it will throw an exception when casting to IStrategy.
 // Returns:
 //      ICommand:
@@ -59,7 +61,7 @@ class RegisterStrategy : IStrategy
         Type type = (Type)argv[1];
 
         IStrategy strategy = (IStrategy)Activator.CreateInstance(type)!;
-        var Delegate = (object[] args) => {return strategy.Run(args);};
+        var Delegate = (object[] args) => { return strategy.Run(args); };
 
         var cmd = new HWDCommandAdapter(IoC.Resolve<Hwdtech.ICommand>("IoC.Register", name, Delegate));
 
@@ -83,8 +85,9 @@ class CurrentScopeSetStrategy : IStrategy
 class HWDCommandAdapter : SpaceBattle.Base.ICommand
 {
     Hwdtech.ICommand cmd;
-    public HWDCommandAdapter(Hwdtech.ICommand cmd) {
-        this.cmd  = cmd;
+    public HWDCommandAdapter(Hwdtech.ICommand cmd)
+    {
+        this.cmd = cmd;
     }
 
     public void Run()

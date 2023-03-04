@@ -8,19 +8,21 @@ using SpaceBattle.Base;
 // Parametres:
 //      Constructor takes next parametres:
 //          IList<ICommand> commands:
-//              A collection of commands that will 
+//              A collection of commands that will
 //              be run in turn when the Run() method is called.
 public class MacroCommand : ICommand
 {
     IList<ICommand> cmds;
 
-    public MacroCommand(IList<ICommand> commands) {
+    public MacroCommand(IList<ICommand> commands)
+    {
         this.cmds = commands;
     }
 
     public void Run()
     {
-        foreach(ICommand cmd in cmds) {
+        foreach (ICommand cmd in cmds)
+        {
             cmd.Run();
         }
     }

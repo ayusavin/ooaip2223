@@ -1,12 +1,10 @@
 namespace SpaceBattleTests.Entities.Commands;
 
-using SpaceBattle.Entities.Commands;
+using System;
+using Moq;
 using SpaceBattle.Base;
 using SpaceBattle.Collections;
-
-using System;
-
-using Moq;
+using SpaceBattle.Entities.Commands;
 
 public class CollisionCheckCommandTests
 {
@@ -21,7 +19,7 @@ public class CollisionCheckCommandTests
         var Second = new Mock<IUObject>();
 
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
@@ -43,7 +41,7 @@ public class CollisionCheckCommandTests
         var Second = new Mock<IUObject>();
 
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
@@ -63,7 +61,7 @@ public class CollisionCheckCommandTests
         var Second = new Mock<IUObject>();
 
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
@@ -82,7 +80,7 @@ public class CollisionCheckCommandTests
         var First = new Mock<IUObject>();
 
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )

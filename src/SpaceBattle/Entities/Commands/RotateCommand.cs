@@ -13,7 +13,7 @@ using SpaceBattle.Collections;
 // Container dependencies:
 //      Math.IList.IAngle.Addition(IList<IAngle>, IList<IAngle>):
 //          Adds two collections with IAngle as a vectors.
-//          
+//
 //          Returns:
 //              IList<IAngle>:
 //                  Result of addition operation.

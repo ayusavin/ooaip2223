@@ -3,14 +3,14 @@ namespace SpaceBattle.Base;
 public interface IAngle
 {
     // Description:
-    //      The numerator and denominator represent the angle 
-    //      of rotation as the aspect ratio of the legs 
+    //      The numerator and denominator represent the angle
+    //      of rotation as the aspect ratio of the legs
     int Numerator { get; set; }
 
     int Denominator { get; set; }
 
     // Description:
-    //      The Add operation adds two corners, thereby 
+    //      The Add operation adds two corners, thereby
     //      turning one corner by the value of the other
     IAngle Add(IAngle other);
 }

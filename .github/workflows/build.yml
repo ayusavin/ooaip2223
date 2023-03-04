@@ -36,7 +36,7 @@ jobs:
       run: '.github/send_report.sh'
       env:
         BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
-    
+
     - name: Edit README.md urls to fresh coverage report url
       run: sed -i "s#$REPORT_URI/[a-zA-Z0-9_-]\+#$REPORT_URI/$BRANCH_NAME#g" README.md
       env:

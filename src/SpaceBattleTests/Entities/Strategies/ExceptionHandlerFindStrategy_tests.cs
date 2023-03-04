@@ -1,23 +1,24 @@
 namespace SpaceBattleTests.Entities.Strategies;
 
-using SpaceBattle.Base;
-using SpaceBattle.Entities.Strategies;
-using SpaceBattle.Collections;
-
 using Moq;
+using SpaceBattle.Base;
+using SpaceBattle.Collections;
+using SpaceBattle.Entities.Strategies;
 
-public class ExceptionHandlerFindStrategyTests {
+public class ExceptionHandlerFindStrategyTests
+{
 
     [Fact(Timeout = 1000)]
-    void ExceptionHandlerFindStrategy_Successful() {
+    void ExceptionHandlerFindStrategy_Successful()
+    {
         // Init dependencies
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )
         ).Run();
-        Container.Resolve<ICommand>("IoC.Register","Handler.Exception", typeof(DictionaryInjectionStrategy)).Run();
+        Container.Resolve<ICommand>("IoC.Register", "Handler.Exception", typeof(DictionaryInjectionStrategy)).Run();
 
         var ehfs = new ExceptionHandlerFindStrategy();
 

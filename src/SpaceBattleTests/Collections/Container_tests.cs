@@ -1,12 +1,14 @@
 namespace SpaceBattleTests.Collections;
 
-using SpaceBattle.Collections;
 using SpaceBattle.Base;
+using SpaceBattle.Collections;
 
-public class ContainerTests {
-    
+public class ContainerTests
+{
+
     [Fact]
-    void ContainerResolveRegister_Succesful() {        
+    void ContainerResolveRegister_Succesful()
+    {
         Container.Resolve<ICommand>("Scopes.Current.Set", Container.Resolve<object>("Scopes.New", Container.Resolve<object>("Scopes.Root"))).Run();
         Container.Resolve<ICommand>("IoC.Register", "Test.Dependency", typeof(TestInjector)).Run();
 

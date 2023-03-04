@@ -1,13 +1,10 @@
 namespace SpaceBattleTests.Entities.Commands;
-using SpaceBattleTests.Attributes;
-
-using SpaceBattle.Entities.Commands;
-using SpaceBattle.Collections;
-using SpaceBattle.Base;
-
 using System;
-
 using Moq;
+using SpaceBattle.Base;
+using SpaceBattle.Collections;
+using SpaceBattle.Entities.Commands;
+using SpaceBattleTests.Attributes;
 
 public class RotateCommandTests
 {
@@ -15,7 +12,7 @@ public class RotateCommandTests
     static RotateCommandTests()
     {
         Container.Resolve<ICommand>(
-            "Scopes.Current.Set", 
+            "Scopes.Current.Set",
             Container.Resolve<object>(
                 "Scopes.New", Container.Resolve<object>("Scopes.Root")
             )

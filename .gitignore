@@ -359,3 +359,7 @@ badge_branchcoverage.svg
 
 # VSCode data
 .vscode
+
+# Python venv
+env/
+venv/
