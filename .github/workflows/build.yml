@@ -20,12 +20,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image, run tests, download report generator
-      run: docker build . --file Dockerfile --no-cache -t fantast03/spacebattle --target tests
+      run: docker build . --file Dockerfile --no-cache -t fantast03/spacebattle --target coverage-collector
 
-    - name: Generate coverage report
-      run: docker run --name=tests fantast03/spacebattle
     - name: Copy coverage report
-      run: docker cp tests:/app/coveragereport/ .
+      run: docker run --rm fantast03/spacebattle | tar xf -
 
     - name: Get current branch name
       shell: bash
