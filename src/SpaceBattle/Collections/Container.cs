@@ -3,7 +3,6 @@ namespace SpaceBattle.Collections;
 using Hwdtech;
 using Hwdtech.Ioc;
 using SpaceBattle.Base;
-using SpaceBattle.Base.Collections;
 
 // Description:
 //      Implementation of ineversion of control container,
@@ -19,6 +18,7 @@ public static class Container
     {
         strategies.Add("IoC.Register", new RegisterStrategy());
         strategies.Add("Scopes.Current.Set", new CurrentScopeSetStrategy());
+        strategies.Add("Scopes.Current", new CurrentScopeStrategy());
 
         new InitScopeBasedIoCImplementationCommand().Execute();
     }
@@ -58,10 +58,20 @@ class RegisterStrategy : IStrategy
     public object Run(params object[] argv)
     {
         string name = (string)argv[0];
-        Type type = (Type)argv[1];
 
-        IStrategy strategy = (IStrategy)Activator.CreateInstance(type)!;
-        var Delegate = (object[] args) => { return strategy.Run(args); };
+        Func<object[], object> Delegate;
+
+        try
+        {
+            Type type = (Type)argv[1];
+            IStrategy strategy = (IStrategy)Activator.CreateInstance(type)!;
+
+            Delegate = (object[] args) => { return strategy.Run(args); };
+        }
+        catch (InvalidCastException)
+        {
+            Delegate = (Func<object[], object>)argv[1];
+        }
 
         var cmd = new HWDCommandAdapter(IoC.Resolve<Hwdtech.ICommand>("IoC.Register", name, Delegate));
 
@@ -77,6 +87,14 @@ class CurrentScopeSetStrategy : IStrategy
     public object Run(params object[] argv)
     {
         return new HWDCommandAdapter(IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", argv));
+    }
+}
+
+class CurrentScopeStrategy : IStrategy
+{
+    public object Run(params object[] argv)
+    {
+        return IoC.Resolve<Func<object>>("Scopes.Current", argv)();
     }
 }
 
