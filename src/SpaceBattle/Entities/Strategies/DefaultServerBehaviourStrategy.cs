@@ -3,7 +3,7 @@ namespace SpaceBattle.Entities.Strategies;
 using SpaceBattle.Base;
 using SpaceBattle.Collections;
 
-internal class DefaultServerBehaviourStrategy : IStrategy
+public class DefaultServerBehaviourStrategy : IStrategy
 {
     public object Run(params object[] argv)
     {
@@ -16,7 +16,7 @@ internal class DefaultServerBehaviourStrategy : IStrategy
         }
         catch (Exception e)
         {
-            Container.Resolve<IStrategy>("Exception.Handle", cmd, e);
+            Container.Resolve<IStrategy>("Exception.Handle").Run(cmd, e);
         }
 
         return 0;

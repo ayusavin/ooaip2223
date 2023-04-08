@@ -92,10 +92,7 @@ class CurrentScopeSetStrategy : IStrategy
 
 class CurrentScopeStrategy : IStrategy
 {
-    public object Run(params object[] argv)
-    {
-        return IoC.Resolve<Func<object>>("Scopes.Current", argv)();
-    }
+    public object Run(params object[] argv) { return IoC.Resolve<Func<object>>("Scopes.Current", argv)(); }
 }
 
 // Description:

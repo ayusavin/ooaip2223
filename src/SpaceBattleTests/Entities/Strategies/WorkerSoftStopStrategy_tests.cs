@@ -2,20 +2,16 @@ namespace SpaceBattleTests.Entities.Strategies;
 
 using Moq;
 using SpaceBattle.Base;
+using SpaceBattle.Base.Collections;
 using SpaceBattle.Collections;
 using SpaceBattle.Entities.Strategies;
 
 public class WorkerSoftStopStrategyTests
 {
-
-    public void WorkerSoftStop_WithoutCallback_Succesful()
+    [Fact(Timeout = 1000)]
+    public void WorkerSoftStop_PushesCommandToStream_WithoutCallback_Succesful()
     {
         // Init test dependencies
-        var pushable = new Mock<IPushable<ICommand>>();
-        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
-        var worker = new Mock<IWorker>();
-        string id = "42";
-
         Container.Resolve<ICommand>(
             "Scopes.Current.Set",
             Container.Resolve<object>(
@@ -23,32 +19,48 @@ public class WorkerSoftStopStrategyTests
             )
         ).Run();
 
-        Container.Resolve<ICommand>("IoC.Register", "Workers.Registry.Get", (object[] argv) => worker.Object).Run();
+        string id = "42";
 
-        Container.Resolve<ICommand>("IoC.Register", "Workers.Stream.Close", (object[] argv) =>
-        {
-            string id = (string)argv[0];
-            ICommand lastCommand = argv.Count() > 1 ? (ICommand)argv[1] : null!;
-        }).Run();
+        var wrk = new Mock<IWorker>();
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Registry.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return wrk.Object;
+            }
+        ).Run();
 
-        // Create WorkerHardStopStrategy
-        var wsss = new WorkerSoftStopStrategy();
+        var pushable = new Mock<IPushable<ICommand>>();
+        var stream = new Mock<IStream<ICommand>>();
+
+        stream.SetupGet(s => s.Pushable).Returns(pushable.Object);
+        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
+
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Stream.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return stream.Object;
+            }
+        ).Run();
+
+        var wss = new WorkerSoftStopStrategy();
 
         // Action
-        ((ICommand)wsss.Run(id)).Run();
+        ((ICommand)wss.Run(id)).Run();
 
         // Assertation
         pushable.Verify();
     }
 
-    public void WorkerSoftStop_WithCallback_Succesful()
+    [Fact(Timeout = 1000)]
+    public void WorkerSoftStop_PushesCommandToStream_WithCallback_Succesful()
     {
         // Init test dependencies
-        var pushable = new Mock<IPushable<ICommand>>();
-        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
-        var worker = new Mock<IWorker>();
-        string id = "42";
-
         Container.Resolve<ICommand>(
             "Scopes.Current.Set",
             Container.Resolve<object>(
@@ -56,25 +68,43 @@ public class WorkerSoftStopStrategyTests
             )
         ).Run();
 
-        Container.Resolve<ICommand>("IoC.Register", "Workers.Registry.Get", (object[] argv) => worker.Object).Run();
+        string id = "42";
 
+        var wrk = new Mock<IWorker>();
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Registry.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return wrk.Object;
+            }
+        ).Run();
 
-        Container.Resolve<ICommand>("IoC.Register", "Workers.Stream.Close", (object[] argv) =>
-        {
-            string id = (string)argv[0];
-            ICommand lastCommand = argv.Count() > 1 ? (ICommand)argv[1] : null!;
-        }).Run();
+        var pushable = new Mock<IPushable<ICommand>>();
+        var stream = new Mock<IStream<ICommand>>();
 
-        var callback = new Mock<Action>();
-        callback.Setup(c => c()).Verifiable();
-        // Create WorkerHardStopStrategy
-        var wsss = new WorkerSoftStopStrategy();
+        stream.SetupGet(s => s.Pushable).Returns(pushable.Object);
+        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
+
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Stream.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return stream.Object;
+            }
+        ).Run();
+
+        var callback = new Mock<ICommand>().Object;
+
+        var wss = new WorkerSoftStopStrategy();
 
         // Action
-        ((ICommand)wsss.Run(id)).Run();
+        ((ICommand)wss.Run(id, callback)).Run();
 
         // Assertation
         pushable.Verify();
-        callback.Verify();
     }
 }

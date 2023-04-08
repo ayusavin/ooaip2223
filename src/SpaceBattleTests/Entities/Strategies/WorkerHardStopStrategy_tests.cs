@@ -2,20 +2,17 @@ namespace SpaceBattleTests.Entities.Strategies;
 
 using Moq;
 using SpaceBattle.Base;
+using SpaceBattle.Base.Collections;
 using SpaceBattle.Collections;
 using SpaceBattle.Entities.Strategies;
 
 public class WorkerHardStopStrategyTests
 {
 
-    public void WorkerHardStop_WithoutCallback_Succesful()
+    [Fact(Timeout = 1000)]
+    public void WorkerHardStop_PushesCommandToStream_WithoutCallback_Succesful()
     {
         // Init test dependencies
-        var pushable = new Mock<IPushable<ICommand>>();
-        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
-        var worker = new Mock<IWorker>();
-        string id = "42";
-
         Container.Resolve<ICommand>(
             "Scopes.Current.Set",
             Container.Resolve<object>(
@@ -23,26 +20,48 @@ public class WorkerHardStopStrategyTests
             )
         ).Run();
 
-        Container.Resolve<ICommand>("IoC.Register", "Workers.Registry.Get", (object[] argv) => worker.Object).Run();
+        string id = "42";
 
-        // Create WorkerHardStopStrategy
-        var whss = new WorkerHardStopStrategy();
+        var wrk = new Mock<IWorker>();
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Registry.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return wrk.Object;
+            }
+        ).Run();
+
+        var pushable = new Mock<IPushable<ICommand>>();
+        var stream = new Mock<IStream<ICommand>>();
+
+        stream.SetupGet(s => s.Pushable).Returns(pushable.Object);
+        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
+
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Stream.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return stream.Object;
+            }
+        ).Run();
+
+        var whs = new WorkerHardStopStrategy();
 
         // Action
-        ((ICommand)whss.Run(id)).Run();
+        ((ICommand)whs.Run(id)).Run();
 
         // Assertation
         pushable.Verify();
     }
 
-    public void WorkerHardStop_WithCallback_Succesful()
+    [Fact(Timeout = 1000)]
+    public void WorkerHardStop_PushesCommandToStream_WithCallback_Succesful()
     {
         // Init test dependencies
-        var pushable = new Mock<IPushable<ICommand>>();
-        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
-        var worker = new Mock<IWorker>();
-        string id = "42";
-
         Container.Resolve<ICommand>(
             "Scopes.Current.Set",
             Container.Resolve<object>(
@@ -50,18 +69,43 @@ public class WorkerHardStopStrategyTests
             )
         ).Run();
 
-        Container.Resolve<ICommand>("IoC.Register", "Workers.Registry.Get", (object[] argv) => worker.Object).Run();
+        string id = "42";
 
-        var callback = new Mock<Action>();
-        callback.Setup(c => c()).Verifiable();
-        // Create WorkerHardStopStrategy
-        var whss = new WorkerHardStopStrategy();
+        var wrk = new Mock<IWorker>();
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Registry.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return wrk.Object;
+            }
+        ).Run();
+
+        var pushable = new Mock<IPushable<ICommand>>();
+        var stream = new Mock<IStream<ICommand>>();
+
+        stream.SetupGet(s => s.Pushable).Returns(pushable.Object);
+        pushable.Setup(p => p.Push(It.IsAny<ICommand>())).Verifiable();
+
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Workers.Stream.Get",
+            (object[] argv) =>
+            {
+                if ((string)argv[0] != id) throw new Exception();
+                return stream.Object;
+            }
+        ).Run();
+
+        var callback = new Mock<ICommand>().Object;
+
+        var whs = new WorkerHardStopStrategy();
 
         // Action
-        ((ICommand)whss.Run(id)).Run();
+        ((ICommand)whs.Run(id, callback)).Run();
 
         // Assertation
         pushable.Verify();
-        callback.Verify();
     }
 }

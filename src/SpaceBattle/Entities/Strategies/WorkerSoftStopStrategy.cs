@@ -38,30 +38,3 @@ class WorkerSoftStopCommand : ICommand
         );
     }
 }
-
-class WorkerCloseCommand : ICommand
-{
-    string id;
-    ICommand action;
-
-    public WorkerCloseCommand(string id, ICommand action)
-    {
-        this.id = id;
-        this.action = action;
-    }
-
-    public void Run()
-    {
-        Container.Resolve<ICommand>(
-            "Workers.Stream.Close",
-            this.id,
-            new WorkerStopCommand(
-                worker: Container.Resolve<IWorker>(
-                    "Workers.Registry.Get",
-                    this.id
-                ),
-                callback: this.action
-            )
-        ).Run();
-    }
-}
