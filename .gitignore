@@ -353,9 +353,9 @@ MigrationBackup/
 .devcontainer
 
 # Unused coverage report badges
-badge_shieldsio*
-badge_combined.svg
-badge_branchcoverage.svg
+coveragereport/*
+!badge_linecoverage.svg
+!badge_methodcoverage.svg
 
 # VSCode data
 .vscode
