@@ -7,7 +7,7 @@
 
 [![Build Status](https://github.com/fantast03/ooaip2223/actions/workflows/build.yml/badge.svg)](https://github.com/Fantast03/ooaip2223/actions/workflows/build.yml)
 
-[![Coverage-Methods](./coveragereport/badge_methodcoverage.svg)](https://ooaip.fantast.dev/report/feature-gRPC-Server)
-[![Coverage-Lines](./coveragereport/badge_linecoverage.svg)](https://ooaip.fantast.dev/report/feature-gRPC-Server)
+[![Coverage-Methods](./coveragereport/badge_methodcoverage.svg)](https://ooaip.fantast.dev/report/main)
+[![Coverage-Lines](./coveragereport/badge_linecoverage.svg)](https://ooaip.fantast.dev/report/main)
 
 </div>
