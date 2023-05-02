@@ -29,3 +29,7 @@ repos:
   - id: dotnet-format
     name: Format tests project
     args: ['src/SpaceBattleTests/tests.csproj']
+
+  - id: dotnet-format
+    name: Format gRPC service project
+    args: ['src/SpaceBattleGrpc/SpaceBattleGrpc.csproj']
