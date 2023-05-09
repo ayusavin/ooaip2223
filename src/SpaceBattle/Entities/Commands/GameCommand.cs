@@ -6,26 +6,30 @@ using SpaceBattle.Collections;
 public class GameCommand : ICommand
 {
     string GameId;
+    ICommand task;
 
-    public GameCommand(string GameId)
+    public GameCommand(string GameId, ICommand task)
     {
         this.GameId = GameId;
+        this.task = task;
     }
 
     public void Run()
     {
-        // Inherit current scope
+        // Save current context
+        var currentScope = Container.Resolve<object>("Scopes.Current");
+
+        // Entrypoint into game context
         Container.Resolve<ICommand>(
             "Scopes.Current.Set",
             Container.Resolve<object>(
-                "Scopes.New", Container.Resolve<object>("Scopes.Current")
+                "Game.Scope.ById", GameId
             )
         ).Run();
 
-        var gameWorker = Container.Resolve<IWorker>("Workers.New", GameId);
+        task.Run();
 
-        gameWorker.Behaviour = Container.Resolve<IStrategy>("Workers.Behaviour.Default");
-
-        gameWorker.Start();
+        // Back to saved context
+        Container.Resolve<ICommand>("Scopes.Current.Set", currentScope).Run();
     }
 }

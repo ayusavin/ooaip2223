@@ -9,45 +9,61 @@ public class GameCommandTests
 {
 
     [Fact(Timeout = 1000)]
-    void GameCommand_GameStarts_Successful()
+    void GameCommand_ExecuteCommandInGameContext_Successful()
     {
         // Init test dependencies
-        Container.Resolve<ICommand>(
-            "Scopes.Current.Set",
-            Container.Resolve<object>(
-                "Scopes.New", Container.Resolve<object>("Scopes.Root")
-            )
-        ).Run();
+        var testScope = Container.Resolve<object>("Scopes.Root");
 
         string id = "42";
-        var worker = new Mock<IWorker>();
-        worker.Setup(w => w.Start()).Verifiable();
+        var gameScope = Container.Resolve<object>("Scopes.New", Container.Resolve<object>("Scopes.Root"));
+        string testDependencyName = "Test.Dependency";
+
+        // Setup game context dependencies
+        Container.Resolve<ICommand>(
+            "Scopes.Current.Set",
+            gameScope
+        ).Run();
 
         Container.Resolve<ICommand>(
             "IoC.Register",
-            "Workers.New",
+            testDependencyName,
+            (object[] _) => _
+        ).Run();
+
+        // Back to test scope
+        Container.Resolve<ICommand>(
+            "Scopes.Current.Set",
+            testScope
+        ).Run();
+
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Game.Scope.ById",
             (object[] argv) =>
             {
                 var ID = (string)argv[0];
 
                 if (id != ID) throw new Exception();
 
-                return worker.Object;
+                return gameScope;
             }
         ).Run();
 
-        Container.Resolve<ICommand>(
-            "IoC.Register",
-            "Workers.Behaviour.Default",
-            (object[] _) => new Mock<IStrategy>().Object
-        ).Run();
+        var task = new Mock<ICommand>();
+        task.Setup(t => t.Run()).Callback(() =>
+        {
+            Container.Resolve<object>(testDependencyName);
+        });
 
-        var gameCmd = new GameCommand(GameId: id);
+        var gameCmd = new GameCommand(GameId: id, task: task.Object);
 
         // Action
         gameCmd.Run();
 
         // Assertation
-        worker.Verify();
+        Assert.Same(
+            Container.Resolve<object>("Scopes.Current"),
+            testScope
+        );
     }
 }
