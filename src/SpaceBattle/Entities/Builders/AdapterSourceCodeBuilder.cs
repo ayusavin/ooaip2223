@@ -12,36 +12,6 @@ public class AdapterSourceCodeBuilder : IBuilder
     private IEnumerable<MethodInfo> methods;
     private Type dtype;
 
-    //     private Template template = Template.Parse(
-    //         text: @"
-    //     internal class {{ class_name }} : {{ int_name }} {
-    //         private IDictionary<string, object> data;
-
-    //         public {{ class_name }}(IDictionary<string, object> data){
-    //             this.data = data;
-    //         }
-
-    //         {{ for property in properties }}
-    //         {{ full_property_name = property.PropertyType.Name + ""."" + property.Name }}
-    //         public {{ property.PropertyType.Name }} {{ property.Name }} {
-    //             {{ if property.CanRead }}get => ({{ property.PropertyType.Name }})data[""{{ full_property_name }}""];{{ end }}
-    //             {{ if property.CanWrite }}set => data[""{{ full_property_name }}""] = value;{{ end }}
-    //         }
-    //         {{ end }}
-
-    //         {{ for method in methods }}
-    //         {{ full_method_name = method.ReturnType.Name + ""."" + method.Name }} // Other signatures?
-    //         {{ params = method.GetParameters() }}
-    //         public {{ method.ReturnType.Name }} {{ method.Name }}({{ for param in params  }}{{ param.ParameterType.Name }} {{ param.Name }}, {{ end }}) {
-    //             {{ if method.ReturnType.Name != ""void"" }}
-    //             return ({{ method.ReturnType.Name }})data[""{{ full_method_name }}""]({{ for param in params  }}{{ param.Name }}, {{ end }});
-    //             {{ else }}
-    //             data[""{{ full_method_name }}""]({{ for param in params  }}{{ param.Name }}, {{ end }});
-    //             {{ end }}
-    //         }
-    //         {{ end }}
-    //     }
-    // ");
     private Template template = Template.Parse(text:
 @"{{- func join(seq,del)
     result = """"
