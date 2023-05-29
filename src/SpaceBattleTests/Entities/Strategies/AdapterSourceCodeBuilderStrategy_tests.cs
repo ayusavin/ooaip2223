@@ -53,8 +53,37 @@ public class AdapterSourceCodeBuilderStrategyTests
         );
 
         // Assertation
-        Assert.Empty(compilation.GetDiagnostics());
+        Assert.Empty(compilation.GetDiagnostics()); // No compilation errors
+        Assert.True(
+            CSharpSyntaxTree.ParseText(template).IsEquivalentTo(
+                CSharpSyntaxTree.ParseText(example)
+            )
+        );
     }
+
+    string example = @"
+internal class TestInterface_adapter : SpaceBattle.Entities.Strategies.TestInterface {
+    private System.Collections.Generic.IDictionary<string, object> data;
+    public TestInterface_adapter(System.Collections.Generic.IDictionary<string, object> data) {
+        this.data = data;
+    }
+    public System.Int32 PropertyRW {
+        get => (System.Int32)data[""System.Int32.PropertyRW""];set => data[""System.Int32.PropertyRW""] = value;
+    }
+    public System.String PropertyR {
+        get => (System.String)data[""System.String.PropertyR""];
+    }
+    public System.Object PropertyW {
+        set => data[""System.Object.PropertyW""] = value;
+    }
+    public void MethodVoid (System.Int32 arg1, System.Object arg2, SpaceBattle.Base.ICommand cmd) {
+        ((System.Action<System.Int32,System.Object,SpaceBattle.Base.ICommand>)data[""void.MethodVoid""])(arg1, arg2, cmd);
+    }
+    public System.Int32 MethodInt () {
+        return ((System.Func<System.Int32>)data[""System.Int32.MethodInt""])();
+    }
+}";
+
 }
 
 public interface TestInterface
