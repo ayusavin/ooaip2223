@@ -5,7 +5,6 @@ using SpaceBattle.Entities.Generators;
 
 public class LinearPositionGeneratorStrategy : IStrategy
 {
-
     public object Run(params object[] argv)
     {
         var iterable = (IEnumerable<object>)argv[0];

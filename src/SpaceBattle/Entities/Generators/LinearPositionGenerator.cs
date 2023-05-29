@@ -6,7 +6,7 @@ using SpaceBattle.Base.Collections;
 
 using SpaceBattle.Collections;
 
-class LinearPositionGenerator : IEnumerator<IList<int>>
+public class LinearPositionGenerator : IEnumerator<IList<int>>
 {
     private int count;
     private int initialCount;

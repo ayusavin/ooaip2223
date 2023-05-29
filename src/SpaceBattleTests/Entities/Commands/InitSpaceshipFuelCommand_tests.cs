@@ -9,7 +9,7 @@ using SpaceBattle.Entities.Commands;
 public class InitSpaceshipFuelCommandTests
 {
     [Fact(Timeout = 1000)]
-    void InitSpaceshipFuelCommand()
+    void InitSpaceshipFuelCommand_SetupFuelSuccessful()
     {
         // Init deps
         Container.Resolve<ICommand>(
@@ -19,7 +19,7 @@ public class InitSpaceshipFuelCommandTests
             )
         ).Run();
 
-        System.Int32 generatee = 0;
+        int generatee = 0;
 
         Container.Resolve<ICommand>(
             "IoC.Register",
@@ -57,18 +57,18 @@ public class InitSpaceshipFuelCommandTests
         var objects = new List<Dictionary<string, object>>();
         foreach (int _ in Enumerable.Range(0, 5))
         {
-            objects.Append(new Dictionary<string, object>());
+            objects.Add(new Dictionary<string, object>());
         }
 
-        var isfc = new InitSpaceshipFuelCommand(objects);
+        var isfc = new InitSpaceshipFuelCommand(objects.AsEnumerable());
 
         // Action
         isfc.Run();
 
         // Assertation
         Assert.Equal<object>(
-            objects.Select((Dictionary<string, object> obj) => obj["Fuel"]),
-            Enumerable.Range(0, generatee)
+            objects.Select((Dictionary<string, object> obj) => obj["Fuel"]).ToList<object>(),
+            Enumerable.Range(1, generatee).ToList<int>()
         );
     }
 }

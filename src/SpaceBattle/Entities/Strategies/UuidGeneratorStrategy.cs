@@ -2,7 +2,7 @@ namespace SpaceBattle.Entities.Strategies;
 
 using SpaceBattle.Base;
 
-class UuidGeneratorStrategy : IStrategy
+public class UuidGeneratorStrategy : IStrategy
 {
     public object Run(params object[] argv)
     {

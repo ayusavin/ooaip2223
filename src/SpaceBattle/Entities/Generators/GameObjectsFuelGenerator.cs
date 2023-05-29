@@ -5,7 +5,7 @@ using System.Collections;
 using SpaceBattle.Base;
 using SpaceBattle.Collections;
 
-class GameObjectsFuelGenerator : IEnumerator<int>
+public class GameObjectsFuelGenerator : IEnumerator<int>
 {
     private IList<object> objs;
 

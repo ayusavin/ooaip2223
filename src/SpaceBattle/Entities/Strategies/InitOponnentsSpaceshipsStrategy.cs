@@ -1,44 +1,38 @@
 namespace SpaceBattle.Entities.Strategies;
 
+using System.Collections;
 using SpaceBattle.Base;
 using SpaceBattle.Collections;
+using SpaceBattle.Entities.Commands;
 
-class InitOponnentsSpaceshipsStrategy : IStrategy
+public class InitOponnentsSpaceshipsStrategy : IStrategy
 {
     public object Run(params object[] argv)
     {
-        var initialPos = (IList<int>)argv[0];
-        var distanceBetweenMates = (IList<int>)argv[1];
-        var distanceBetweenOpponents = (IList<int>)argv[2];
-        var spaceships = (IEnumerable<object>)argv[3];
+        var spaceshipsFirst = (IEnumerable<object>)argv[0];
+        var spaceshipsSecond = (IEnumerable<object>)argv[1];
 
-        return new InitOpponentsSpaceshipsCommand(initialPos, distanceBetweenMates, distanceBetweenOpponents, spaceships);
+        return new InitOpponentsSpaceshipsCommand(spaceshipsFirst, spaceshipsSecond);
     }
 }
 
 class InitOpponentsSpaceshipsCommand : ICommand
 {
-    private IList<int> initialPos;
-    private IList<int> distanceBetweenMates;
-    private IList<int> distanceBetweenOpponents;
-    private IEnumerable<object> gameObjects;
+    private IEnumerable<object> gameObjectsFirst;
+    private IEnumerable<object> gameObjectsSecond;
 
-    public InitOpponentsSpaceshipsCommand(IList<int> initialPos, IList<int> distanceBetweenMates, IList<int> distanceBetweenOpponents, IEnumerable<object> gameObjects)
+    public InitOpponentsSpaceshipsCommand(
+        IEnumerable<object> gameObjectsFirst,
+        IEnumerable<object> gameObjectsSecond
+    )
     {
-        this.initialPos = initialPos;
-        this.distanceBetweenMates = distanceBetweenMates;
-        this.distanceBetweenOpponents = distanceBetweenOpponents;
-        this.gameObjects = gameObjects;
+        this.gameObjectsFirst = gameObjectsFirst;
+        this.gameObjectsSecond = gameObjectsSecond;
     }
 
     public void Run()
     {
-        ((ICommand)new LinearPositionGeneratorStrategy().Run(this.gameObjects, this.initialPos, this.distanceBetweenMates)).Run();
-        ((ICommand)new LinearPositionGeneratorStrategy()
-            .Run(
-                this.gameObjects,
-                Container.Resolve<IList<int>>("Math.IList.Int32.Addition", this.initialPos, this.distanceBetweenOpponents),
-                this.distanceBetweenMates)
-        ).Run();
+        Container.Resolve<ICommand>("Game.Objects.Commands.InitPosition", gameObjectsFirst).Run();
+        Container.Resolve<ICommand>("Game.Objects.Commands.InitPosition", gameObjectsSecond).Run();
     }
 }
