@@ -11,4 +11,9 @@
     <PackageReference Include="Hwdtech.Ioc.ScopeBasedIoCImplementation" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Scriban" Version="3.2.1"/>
+  </ItemGroup>
+
+
 </Project>
