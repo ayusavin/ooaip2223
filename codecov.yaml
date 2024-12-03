@@ -1,0 +1,4 @@
+ignore:
+  - "src/SpaceBattleGrpc/main.cs"
+  - "src/SpaceBattleGrpc/Entities/Strategies/StartCommandProcesserServiceStrategy.cs"
+  - "src/SpaceBattleTests/*"
