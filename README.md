@@ -7,7 +7,6 @@
 
 [![Build Status](https://github.com/fantast03/ooaip2223/actions/workflows/build.yml/badge.svg)](https://github.com/Fantast03/ooaip2223/actions/workflows/build.yml)
 
-[![Coverage-Methods](./coveragereport/badge_methodcoverage.svg)](https://ooaip.fantast.dev/report/feature-InitGameState)
-[![Coverage-Lines](./coveragereport/badge_linecoverage.svg)](https://ooaip.fantast.dev/report/feature-InitGameState)
+[![codecov](https://codecov.io/github/ayusavin/ooaip2223/graph/badge.svg?token=BQXAYQWCNH)](https://codecov.io/github/ayusavin/ooaip2223)
 
 </div>

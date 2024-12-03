@@ -19,28 +19,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image, run tests, download report generator
-      run: docker build . --file Dockerfile --no-cache -t fantast03/spacebattle --target coverage-collector
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore ./src/SpaceBattleTests/tests.csproj
+      
+    - name: Build
+      run: dotnet build ./src/SpaceBattleTests/tests.csproj --no-restore
+      
+    - name: Test with coverage
+      run: dotnet test ./src/SpaceBattleTests/tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
 
-    - name: Copy coverage report
-      run: docker run --rm fantast03/spacebattle | tar xf -
-
-    - name: Get current branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      id: extract_branch
-
-    - name: Send coverage report on dedicated server
-      run: '.github/send_report.sh'
-      env:
-        BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
-
-    - name: Edit README.md urls to fresh coverage report url
-      run: sed -i "s#$REPORT_URI/[a-zA-Z0-9_-]\+#$REPORT_URI/$BRANCH_NAME#g" README.md
-      env:
-        BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
-
-    - name: Push badges and updated README.md into the branch
-      uses: mikeal/publish-to-github-action@master
-      env:
-        BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
