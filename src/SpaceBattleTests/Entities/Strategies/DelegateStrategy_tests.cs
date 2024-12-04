@@ -12,9 +12,9 @@ public class DelegateStrategyTests
         var expectedResult = new object();
         var expectedArgs = new object[] { "test", 42 };
         var delegateMock = new Mock<Func<object[], object>>();
-        delegateMock.Setup(d => d(It.Is<object[]>(args => 
-            args.Length == expectedArgs.Length && 
-            args[0] == expectedArgs[0] && 
+        delegateMock.Setup(d => d(It.Is<object[]>(args =>
+            args.Length == expectedArgs.Length &&
+            args[0] == expectedArgs[0] &&
             args[1] == expectedArgs[1]
         ))).Returns(expectedResult);
 
