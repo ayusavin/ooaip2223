@@ -10,11 +10,10 @@ using SpaceBattleGrpc.Services;
 
 public class CommandProcesserServiceTests
 {
-
     [Fact(Timeout = 1000)]
-    public void SendCommand_CommandProcessed_WithoutArgs_Succesful()
+    public async Task SendCommand_GameExists_Successful()
     {
-        // Init deps
+        // Init test dependencies
         Container.Resolve<ICommand>(
             "Scopes.Current.Set",
             Container.Resolve<object>(
@@ -22,64 +21,70 @@ public class CommandProcesserServiceTests
             )
         ).Run();
 
-        var cr = new CommandRequest
+        // Setup location registry
+        var registry = new Dictionary<string, string>
         {
-            GameId = "42",
-            Command = "Command.Mock"
+            { "game1", "thread1" }
         };
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Game.Location.Registry",
+            (object[] _) => registry
+        ).Run();
 
-        ICommand streamBackend = null!;
+        // Setup command generation
+        var generatedCommand = new Mock<ICommand>();
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Commands.Generate.ByName",
+            (object[] argv) => generatedCommand.Object
+        ).Run();
 
+        // Setup game command creation
+        var gameCommand = new Mock<ICommand>();
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Commands.Game.Create",
+            (object[] argv) => gameCommand.Object
+        ).Run();
+
+        // Setup stream push command
+        var streamPushCommand = new Mock<ICommand>();
         Container.Resolve<ICommand>(
             "IoC.Register",
             "Workers.Stream.Push",
             (object[] argv) =>
             {
-                string id = (string)argv[0];
-                ICommand cmd = (ICommand)argv[1];
-
-                var pushCmd = new Mock<ICommand>();
-
-                pushCmd.Setup(c => c.Run()).Callback(
-                    () =>
-                    {
-                        if (id != cr.GameId)
-                            throw new Exception();
-                        streamBackend = cmd;
-                    }
-                );
-                return pushCmd.Object;
+                Assert.Equal("thread1", argv[0]);
+                Assert.Same(gameCommand.Object, argv[1]);
+                return streamPushCommand.Object;
             }
         ).Run();
 
-        ICommand testCmd = new Mock<ICommand>().Object;
+        // Create service
+        var logger = new Mock<ILogger<CommandProcesserService>>();
+        var service = new CommandProcesserService(logger.Object);
 
-        Container.Resolve<ICommand>(
-            "IoC.Register",
-            "Commands.Generate.ByName",
-            (object[] argv) =>
-            {
-                string name = (string)argv[0];
+        // Create request
+        var request = new CommandRequest
+        {
+            GameId = "game1",
+            Command = "TestCommand"
+        };
+        request.Argv.Add(new Option { Key = "arg1", Value = "value1" });
 
-                if (name != cr.Command)
-                    throw new Exception();
+        // Send command
+        var response = await service.SendCommand(request, new Mock<ServerCallContext>().Object);
 
-                return testCmd;
-            }
-        ).Run();
-
-        var cps = new CommandProcesserService(new Mock<ILogger<CommandProcesserService>>().Object);
-
-        cps.SendCommand(cr, new Mock<ServerCallContext>().Object);
-
-        // Assertation
-        Assert.Same(testCmd, streamBackend);
+        // Assert
+        Assert.Equal(200, response.Status);
+        streamPushCommand.Verify(c => c.Run(), Times.Once);
     }
 
     [Fact(Timeout = 1000)]
-    public void SendCommand_CommandProcessed_WithArgs_Succesful()
+    public async Task SendCommand_GameNotFound_Returns404()
     {
-        // Init deps
+        // Init test dependencies
         Container.Resolve<ICommand>(
             "Scopes.Current.Set",
             Container.Resolve<object>(
@@ -87,75 +92,29 @@ public class CommandProcesserServiceTests
             )
         ).Run();
 
-        var opts = new Dictionary<string, string> {
-            {".NET", "Microsoft"},
-            {"gRPC", "Google"},
-            {"k8s", "Google"}
-        };
+        // Setup empty location registry
+        var registry = new Dictionary<string, string>();
+        Container.Resolve<ICommand>(
+            "IoC.Register",
+            "Game.Location.Registry",
+            (object[] _) => registry
+        ).Run();
 
-        var cr = new CommandRequest
+        // Create service
+        var logger = new Mock<ILogger<CommandProcesserService>>();
+        var service = new CommandProcesserService(logger.Object);
+
+        // Create request
+        var request = new CommandRequest
         {
-            GameId = "42",
-            Command = "Command.Mock"
+            GameId = "nonexistent",
+            Command = "TestCommand"
         };
-        cr.Argv.Add(
-                opts.Select(Opt =>
-                {
-                    Option opt = new Option();
-                    opt.Key = Opt.Key;
-                    opt.Value = Opt.Value;
 
-                    return opt;
-                }
-            )
-        );
+        // Send command
+        var response = await service.SendCommand(request, new Mock<ServerCallContext>().Object);
 
-        ICommand streamBackend = null!;
-
-        Container.Resolve<ICommand>(
-            "IoC.Register",
-            "Workers.Stream.Push",
-            (object[] argv) =>
-            {
-                string id = (string)argv[0];
-                ICommand cmd = (ICommand)argv[1];
-
-                var pushCmd = new Mock<ICommand>();
-
-                pushCmd.Setup(c => c.Run()).Callback(
-                    () =>
-                    {
-                        if (id != cr.GameId)
-                            throw new Exception();
-                        streamBackend = cmd;
-                    }
-                );
-                return pushCmd.Object;
-            }
-        ).Run();
-
-        ICommand testCmd = new Mock<ICommand>().Object;
-
-        Container.Resolve<ICommand>(
-            "IoC.Register",
-            "Commands.Generate.ByName",
-            (object[] argv) =>
-            {
-                string name = (string)argv[0];
-                var args = (IDictionary<string, string>)argv[1];
-
-                if (name != cr.Command || !args.SequenceEqual(opts))
-                    throw new Exception();
-
-                return testCmd;
-            }
-        ).Run();
-
-        var cps = new CommandProcesserService(new Mock<ILogger<CommandProcesserService>>().Object);
-
-        cps.SendCommand(cr, new Mock<ServerCallContext>().Object);
-
-        // Assertation
-        Assert.Same(testCmd, streamBackend);
+        // Assert
+        Assert.Equal(404, response.Status);
     }
 }

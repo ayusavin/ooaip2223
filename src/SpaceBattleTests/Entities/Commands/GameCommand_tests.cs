@@ -9,13 +9,13 @@ public class GameCommandTests
 {
 
     [Fact(Timeout = 1000)]
-    void GameCommand_ExecuteCommandInGameContext_Successful()
+    public void GameCommand_ExecuteCommandInGameContext_Successful()
     {
         // Init test dependencies
-        var testScope = Container.Resolve<object>("Scopes.Root");
+        var testScope = Container.Resolve<object>("Scopes.New", Container.Resolve<object>("Scopes.Root"));
 
         string id = "42";
-        var gameScope = Container.Resolve<object>("Scopes.New", Container.Resolve<object>("Scopes.Root"));
+        var gameScope = Container.Resolve<object>("Scopes.New", testScope);
         string testDependencyName = "Test.Dependency";
 
         // Setup game context dependencies
@@ -55,7 +55,7 @@ public class GameCommandTests
             Container.Resolve<object>(testDependencyName);
         });
 
-        var gameCmd = new GameCommand(GameId: id, task: task.Object);
+        var gameCmd = new GameCommand(task: task.Object, gameId: id);
 
         // Action
         gameCmd.Run();
