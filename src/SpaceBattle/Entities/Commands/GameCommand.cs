@@ -5,12 +5,12 @@ using SpaceBattle.Collections;
 
 public class GameCommand : ICommand
 {
-    string GameId;
+    public string GameId { get; }
     ICommand task;
 
-    public GameCommand(string GameId, ICommand task)
+    public GameCommand(ICommand task, string gameId = "")
     {
-        this.GameId = GameId;
+        this.GameId = gameId;
         this.task = task;
     }
 
